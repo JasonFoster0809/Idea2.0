@@ -1,0 +1,579 @@
+/* Achievements styling */
+.achievement-container {
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.achievement-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 4px;
+    background: linear-gradient(to bottom, var(--primary-color), var(--secondary-color));
+    transform: translateX(-50%);
+    opacity: 0.2;
+    border-radius: 4px;
+    z-index: -1;
+}
+
+.achievement-category {
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.achievement-category-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    color: var(--dark-color);
+    padding-bottom: 0.8rem;
+    border-bottom: 3px solid;
+    border-image: linear-gradient(to right, var(--primary-color), var(--secondary-color)) 1;
+    display: inline-block;
+    position: relative;
+    letter-spacing: 0.5px;
+    text-shadow: 0px 0px 1px rgba(0,0,0,0.1);
+}
+
+.achievement-category-title::before {
+    content: '';
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background: var(--gradient-bg);
+    border-radius: 50%;
+    left: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.achievement-category:hover .achievement-category-title::before {
+    opacity: 1;
+}
+
+/* Styles for achievements */
+.achievement-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+    border-left: 4px solid #e9ecef;
+}
+
+.achievement-card.achieved {
+    background: linear-gradient(135deg, #f8f9fa, #e6f7ff);
+    border-left: 4px solid #4facfe;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.achievement-card .achievement-icon {
+    width: 50px;
+    height: 50px;
+    background: #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.achievement-card.achieved .achievement-icon {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+}
+
+.achievement-card .achievement-default-icon {
+    font-size: 1.5rem;
+    color: #adb5bd;
+}
+
+.achievement-card.achieved .achievement-default-icon {
+    color: white;
+}
+
+.achievement-card h5 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.achievement-card p {
+    color: #6c757d;
+    font-size: 0.85rem;
+    flex-grow: 1;
+}
+
+.achievement-rewards {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.achievement-rewards .badge {
+    font-weight: normal;
+    font-size: 0.75rem;
+}
+
+/* Achievement cards styling */
+.achievement-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    height: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    position: relative;
+}
+
+.achievement-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.achievement-card.achieved {
+    background: linear-gradient(135deg, #f0f7ff, #e4f1ff);
+    border: 2px solid rgba(78, 115, 223, 0.3);
+    box-shadow: 0 5px 15px rgba(78, 115, 223, 0.15);
+    transform: translateY(-3px);
+}
+
+.achievement-card.achieved .achievement-icon {
+    background: linear-gradient(135deg, #4e73df, #6a8ce8, #8aa7f0);
+    box-shadow: 0 5px 15px rgba(78, 115, 223, 0.4);
+    animation: glowing 2s infinite alternate;
+}
+
+.achievement-card.achieved .achievement-info h5 {
+    color: #2a4998;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.achievement-card.achieved::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    background-color: #4e73df;
+    transform: rotate(45deg) translate(15px, -15px);
+    z-index: 1;
+}
+
+.achievement-card.achieved::after {
+    content: '✓';
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    color: white;
+    font-size: 12px;
+    z-index: 2;
+}
+
+.achievement-card.achieved .achievement-rewards {
+    transform: scale(1.05);
+}
+
+.achievement-card.achieved .badge {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+}
+
+.achievement-icon {
+    background: linear-gradient(135deg, #4e73df, #6a8ce8);
+    border-radius: 50%;
+    width: 65px;
+    height: 65px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+    color: white;
+    box-shadow: 0 4px 10px rgba(78, 115, 223, 0.3);
+    position: relative;
+    z-index: 1;
+}
+
+.achievement-icon::after {
+    content: '';
+    position: absolute;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    border: 2px dashed rgba(255, 255, 255, 0.5);
+    z-index: -1;
+}
+
+.achievement-default-icon {
+    font-size: 26px;
+}
+
+.achievement-info {
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.achievement-info h5 {
+    margin-bottom: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.achievement-info p {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    flex-grow: 1;
+    line-height: 1.5;
+}
+
+.achievement-rewards {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: auto;
+}
+
+.achievement-rewards .badge {
+    padding: 6px 10px;
+    border-radius: 15px;
+    font-weight: 500;
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.07);
+}
+
+.badge.bg-primary {
+    background: linear-gradient(135deg, #4287f5, #3a7bd5) !important;
+    border: none;
+}
+
+.badge.bg-warning {
+    background: linear-gradient(135deg, #fad961, #f7b733) !important;
+}
+
+.badge.bg-success {
+    background: linear-gradient(135deg, #6dd5ed, #2193b0) !important;
+}
+
+/* Achievement Filter */
+.achievement-filter {
+    margin-bottom: 25px;
+    text-align: center;
+    padding: 5px;
+    background-color: rgba(248, 249, 250, 0.8);
+    border-radius: 35px;
+    display: inline-block;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.achievement-filter .btn-group {
+    border-radius: 35px;
+    overflow: hidden;
+}
+
+.achievement-filter .btn {
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    margin: 0;
+    border: none;
+    border-radius: 35px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.achievement-filter .btn.active {
+    background: linear-gradient(135deg, #3a7bd5, #6ab7ff);
+    color: white;
+    box-shadow: 0 4px 10px rgba(58, 123, 213, 0.3);
+}
+
+/* Tab styling */
+.nav-tabs {
+    border-bottom: none;
+    margin-bottom: 20px;
+    gap: 5px;
+}
+
+.nav-tabs .nav-item {
+    margin-bottom: 0;
+}
+
+.nav-tabs .nav-link {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    font-weight: 500;
+    color: #495057;
+    padding: 12px 20px;
+    border: 1px solid #dee2e6;
+    border-bottom: none;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+}
+
+.nav-tabs .nav-link:hover {
+    background-color: #e9ecef;
+}
+
+.nav-tabs .nav-link i {
+    margin-right: 8px;
+}
+
+.nav-tabs .nav-link.active {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-color: #dee2e6 #dee2e6 #fff;
+    color: #3a7bd5;
+    font-weight: 600;
+    box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.03);
+}
+
+.tab-content {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    padding: 25px !important;
+}
+
+/* Daily Quests Section */
+.daily-rewards {
+    margin-bottom: 30px;
+}
+
+.reward-milestone {
+    background-color: #f1f3f5;
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+    position: relative;
+    transition: all 0.4s ease;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.milestone-icon {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #6c757d;
+}
+
+.milestone-reached {
+    background: linear-gradient(135deg, #d4edda, #c3e6cb);
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);
+}
+
+.milestone-reached .milestone-icon {
+    color: #28a745;
+}
+
+.daily-progress {
+    margin: 25px 0;
+}
+
+.progress-text {
+    margin-bottom: 8px;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.daily-quests .table {
+    box-shadow: none;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 0;
+}
+
+.daily-quests th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    padding: 15px;
+    font-size: 0.95rem;
+}
+
+.daily-quests td {
+    padding: 15px;
+    vertical-align: middle;
+}
+
+/* Animation for new achievements */
+@keyframes achievementUnlocked {
+    0% { 
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    70% { 
+        transform: scale(1.05);
+        opacity: 1;
+    }
+    100% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.achievement-new {
+    animation: achievementUnlocked 0.6s ease-in-out;
+}
+
+/* Progress bar styling */
+.progress {
+    height: 12px;
+    border-radius: 6px;
+    background-color: #e9ecef;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(to right, #3a7bd5, #6ab7ff);
+    transition: width 0.6s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    .achievement-card {
+        margin-bottom: 20px;
+    }
+
+    .reward-milestone {
+        width: 45px;
+        height: 45px;
+    }
+
+    .nav-tabs .nav-link {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+
+    .tab-content {
+        padding: 15px !important;
+    }
+}
+/* Removed glowing animation */
+
+/* Daily quest milestone styling improvement */
+.reward-milestone {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    border: 2px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.milestone-icon {
+    font-weight: bold;
+    color: #6c757d;
+}
+
+.reward-milestone.milestone-reached {
+    background: linear-gradient(135deg, #fad961, #f7b733);
+    border-color: #f0ad4e;
+    box-shadow: 0 3px 8px rgba(240, 173, 78, 0.3);
+    transform: scale(1.05);
+}
+
+.reward-milestone.milestone-reached .milestone-icon {
+    color: #5a4500;
+}
+
+/* Tooltip to show achievement rewards more clearly */
+.achievement-info {
+    position: relative;
+}
+
+.achievement-rewards {
+    position: relative;
+    z-index: 5;
+    transition: all 0.3s ease;
+}
+
+.achievement-card:hover .achievement-rewards {
+    transform: scale(1.05);
+}
+
+/* Achievement card styling */
+.achievement-card {
+    display: flex;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    border-left: 5px solid #e9ecef;
+}
+
+.achievement-card.achieved {
+    border-left: 5px solid #28a745;
+    background-color: rgba(40, 167, 69, 0.05);
+}
+
+.achievement-icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.achievement-default-icon {
+    color: #adb5bd;
+    font-size: 1.5rem;
+}
+
+.achievement-card.achieved .achievement-default-icon {
+    color: #28a745;
+}
+
+.achievement-info {
+    flex-grow: 1;
+}
+
+.achievement-info h5 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.achievement-info p {
+    margin: 0 0 10px 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Added styling for daily quests title */
+.daily-quests-title {
+    color: #212529; /* Dark color for consistency */
+    font-weight: 600;
+    margin-bottom: 1rem;
+}

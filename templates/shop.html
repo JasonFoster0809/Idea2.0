@@ -1,0 +1,546 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4" data-aos="fade-down">Shop</h2>
+
+    <div class="row">
+        <!-- Help Rights Section -->
+        <div class="col-md-4" data-aos="fade-up">
+            <div class="card shadow h-100">
+                <div class="card-header">
+                    <h3 class="card-title">Help Rights</h3>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action" onclick="purchaseItem('50/50', 50)">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>50/50</h6>
+                                    <small>Remove 2 wrong answers</small>
+                                </div>
+                                <span class="badge bg-primary">🪙 50</span>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="purchaseItem('Skip Question', 100)">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Skip Question</h6>
+                                    <small>Skip 1 answer but keep coins</small>
+                                </div>
+                                <span class="badge bg-primary">🪙 100</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gacha Section -->
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="card shadow h-100">
+                <div class="card-header">
+                    <h3 class="card-title">Gacha</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <button class="btn btn-primary btn-lg" onclick="openGachaModal()">
+                            Try Your Luck! (🪙 100)
+                        </button>
+                    </div>
+                    <div class="small">
+                        <p>Possible Rewards:</p>
+                        <ul id="gacha-rewards-list">
+                            <li>Have a nice day</li>
+                            <li>50/50 help</li>
+                            <li>Skip 1 answer</li>
+                            <li>20% coin boost</li>
+                            <li>Free entrance ticket</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customization Items -->
+        <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+            <div class="card shadow h-100">
+                <div class="card-header">
+                    <h3 class="card-title">Customization</h3>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action" onclick="openCustomizationModal('hair')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Hair Styles</h6>
+                                    <small>Change your avatar's hair</small>
+                                </div>
+                                <span class="badge bg-primary">🪙 200</span>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="openCustomizationModal('skin')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Skin Tones</h6>
+                                    <small>Change your avatar's skin tone</small>
+                                </div>
+                                <span class="badge bg-primary">🪙 150</span>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action" onclick="openCustomizationModal('accessory')">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6>Accessories</h6>
+                                    <small>Add accessories to your avatar</small>
+                                </div>
+                                <span class="badge bg-primary">🪙 300</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gacha Modal -->
+<div class="modal fade" id="gachaModal" tabindex="-1" aria-labelledby="gachaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gachaModalLabel">Fortune Cookie Gacha</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="gacha-intro">
+                    <p>Click on a fortune cookie to reveal your prize!</p>
+                    <div class="gacha-cookies-container">
+                        <div class="row" id="gacha-cookies-grid">
+                            <!-- Will be filled dynamically with cookies -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="gacha-result" style="display:none;">
+                    <div class="selected-cookie-container">
+                        <div class="fortune-cookie-wrapper">
+                            <img src="{{ url_for('static', filename='images/fortune-cookies/cookie-closed.png') }}" 
+                                 onerror="this.src='https://via.placeholder.com/200x150?text=Fortune+Cookie'" 
+                                 alt="Selected Fortune Cookie" class="img-fluid selected-cookie">
+                            <div class="fortune-paper" style="display:none;">
+                                <p id="fortune-message"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fortune-message mt-4">
+                        <h4 id="gacha-prize-name"></h4>
+                        <p id="gacha-prize-description"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="gacha-restart-btn" style="display:none;" onclick="resetGacha()">Try Again</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customization Modal -->
+<div class="modal fade" id="customizationModal" tabindex="-1" aria-labelledby="customizationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="customizationModalLabel">Customize Your Avatar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="customization-options" class="row">
+                    <!-- Will be filled dynamically based on selected customization type -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="save-customization-btn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentBalance = {{ current_user.coins }};
+    let customizationType = '';
+    let customizationOption = '';
+    let customizationCost = 0;
+
+    // Update the balance display
+    function updateBalanceDisplay() {
+        document.getElementById('user-coins').textContent = currentBalance;
+    }
+
+    // Purchase an item
+    function purchaseItem(item, cost) {
+        if (currentBalance < cost) {
+            showAlert('Bạn không đủ tiền để mua nó!', 'error');
+            return;
+        }
+
+        fetch('/api/purchase', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                item: item,
+                cost: cost
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentBalance = data.newBalance;
+                updateBalanceDisplay();
+                showAlert(`Mua hàng thành công! ${item} đã được thêm vào balo của bạn.`, 'success');
+
+                // Stay on shop page after successful purchase
+            } else {
+                showAlert(data.message || 'Có lỗi xảy ra!', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Có lỗi xảy ra!', 'error');
+        });
+    }
+
+    let gachaRewards = [];
+
+    // Open the gacha modal
+    function openGachaModal() {
+        if (currentBalance < 100) {
+            showAlert('Bạn không đủ tiền để mua nó!', 'error');
+            return;
+        }
+
+        // Show the modal first with loading state
+        const gachaModal = new bootstrap.Modal(document.getElementById('gachaModal'));
+        gachaModal.show();
+        
+        // Show loading state
+        document.getElementById('gacha-cookies-grid').innerHTML = '<div class="col-12 text-center"><p>Đang tải fortune cookies...</p></div>';
+
+        // Process payment first
+        fetch('/api/purchase', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                item: 'Gacha',
+                cost: 100
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Update balance
+                currentBalance = data.newBalance;
+                updateBalanceDisplay();
+
+                // Fetch the 8 random rewards from server
+                return fetch('/api/gacha');
+            } else {
+                throw new Error(data.message || 'Có lỗi xảy ra khi mua vé gacha!');
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.rewards && Array.isArray(data.rewards)) {
+                // Store the rewards
+                gachaRewards = data.rewards;
+
+                // Reset UI
+                document.getElementById('gacha-intro').style.display = 'block';
+                document.getElementById('gacha-result').style.display = 'none';
+                document.getElementById('gacha-restart-btn').style.display = 'none';
+
+                // Generate the cookie grid
+                const cookiesGrid = document.getElementById('gacha-cookies-grid');
+                cookiesGrid.innerHTML = '';
+
+                for (let i = 0; i < gachaRewards.length; i++) {
+                    const cookieDiv = document.createElement('div');
+                    cookieDiv.className = 'col-3 mb-3';
+                    cookieDiv.innerHTML = `
+                        <div class="gacha-cookie" data-index="${i}" onclick="selectGachaCookie(${i})">
+                            <img src="{{ url_for('static', filename='images/fortune-cookies/cookie-closed.png') }}" 
+                                 onerror="this.src='https://via.placeholder.com/50x50?text=Cookie'" 
+                                 alt="Fortune Cookie" class="img-fluid">
+                        </div>
+                    `;
+                    cookiesGrid.appendChild(cookieDiv);
+                }
+            } else {
+                throw new Error(data.message || 'Có lỗi xảy ra khi lấy phần thưởng!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('gacha-cookies-grid').innerHTML = `
+                <div class="col-12 text-center">
+                    <p class="text-danger">Có lỗi xảy ra: ${error.message || 'Không có dữ liệu'}</p>
+                    <p>Vui lòng thử lại sau.</p>
+                </div>
+            `;
+            
+            // Don't close modal so user can see the error
+            showAlert('Có lỗi xảy ra khi lấy phần thưởng!', 'error');
+        });
+    }
+
+    // Select a gacha cookie
+    function selectGachaCookie(index) {
+        if (index < 0 || index >= gachaRewards.length) {
+            showAlert('Invalid cookie selection', 'error');
+            return;
+        }
+
+        const reward = gachaRewards[index];
+
+        // Show gacha result
+        document.getElementById('gacha-intro').style.display = 'none';
+        document.getElementById('gacha-result').style.display = 'block';
+        document.getElementById('gacha-restart-btn').style.display = 'inline-block';
+
+        // Set reward details
+        document.getElementById('gacha-prize-name').textContent = reward.name;
+        document.getElementById('gacha-prize-description').textContent = reward.description;
+        document.getElementById('fortune-message').textContent = reward.message;
+
+        // Animate cookie opening
+        const selectedCookie = document.querySelector('.selected-cookie');
+        selectedCookie.classList.add('open-animation');
+
+        // After animation, show cookie halves and fortune paper
+        setTimeout(() => {
+            const cookieWrapper = document.querySelector('.fortune-cookie-wrapper');
+
+            // Create cookie halves
+            const leftHalf = document.createElement('div');
+            leftHalf.className = 'cookie-left';
+            leftHalf.innerHTML = `<img src="{{ url_for('static', filename='images/fortune-cookies/cookie-left.png') }}" onerror="this.src='https://via.placeholder.com/100x75?text=Left+Half'" alt="Left half" class="img-fluid">`;
+
+            const rightHalf = document.createElement('div');
+            rightHalf.className = 'cookie-right';
+            rightHalf.innerHTML = `<img src="{{ url_for('static', filename='images/fortune-cookies/cookie-right.png') }}" onerror="this.src='https://via.placeholder.com/100x75?text=Right+Half'" alt="Right half" class="img-fluid">`;
+
+            cookieWrapper.appendChild(leftHalf);
+            cookieWrapper.appendChild(rightHalf);
+
+            // Show fortune paper
+            const fortunePaper = document.querySelector('.fortune-paper');
+            fortunePaper.style.display = 'block';
+
+            // Add delay then show the fortune paper fully
+            setTimeout(() => {
+                fortunePaper.classList.add('visible');
+            }, 500);
+
+            // Register the reward with the server
+            fetch('/api/gacha/select', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    index: index,
+                    reward: reward
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && reward.item) {
+                    setTimeout(() => {
+                        showAlert(`${reward.item} đã được thêm vào balo của bạn!`, 'success');
+                    }, 1500);
+                }
+            })
+            .catch(error => {
+                console.error('Error registering gacha selection:', error);
+            });
+
+        }, 1000);
+    }
+
+    // Reset the gacha state
+    function resetGacha() {
+        // Clear modal and reopen
+        openGachaModal();
+    }
+
+    // Open customization modal
+    function openCustomizationModal(type) {
+        customizationType = type;
+
+        let options = [];
+        let cost = 0;
+
+        switch(type) {
+            case 'hair':
+                options = [
+                    { id: 'default', name: 'Default', image: 'hair-default.png' },
+                    { id: 'curly', name: 'Curly', image: 'hair-curly.png' },
+                    { id: 'straight', name: 'Straight', image: 'hair-straight.png' },
+                    { id: 'short', name: 'Short', image: 'hair-short.png' }
+                ];
+                cost = 200;
+                break;
+            case 'skin':
+                options = [
+                    { id: 'light', name: 'Light', image: 'skin-light.png' },
+                    { id: 'medium', name: 'Medium', image: 'skin-medium.png' },
+                    { id: 'dark', name: 'Dark', image: 'skin-dark.png' },
+                    { id: 'tan', name: 'Tan', image: 'skin-tan.png' }
+                ];
+                cost = 150;
+                break;
+            case 'accessory':
+                options = [
+                    { id: 'none', name: 'None', image: 'accessory-none.png' },
+                    { id: 'glasses', name: 'Glasses', image: 'accessory-glasses.png' },
+                    { id: 'hat', name: 'Hat', image: 'accessory-hat.png' },
+                    { id: 'earrings', name: 'Earrings', image: 'accessory-earrings.png' }
+                ];
+                cost = 300;
+                break;
+        }
+
+        customizationCost = cost;
+
+        // Set modal title based on type
+        const titleMap = {
+            'hair': 'Hair Styles',
+            'skin': 'Skin Tones',
+            'accessory': 'Accessories'
+        };
+        document.getElementById('customizationModalLabel').textContent = `Customize: ${titleMap[type]} (🪙 ${cost})`;
+
+        // Generate options HTML
+        const optionsContainer = document.getElementById('customization-options');
+        optionsContainer.innerHTML = '';
+
+        options.forEach(option => {
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'col-6 mb-3';
+            optionDiv.innerHTML = `
+                <div class="customization-option" data-id="${option.id}" onclick="selectCustomizationOption('${option.id}')">
+                    <img src="{{ url_for('static', filename='images/customization/') }}${option.image}" alt="${option.name}" class="img-fluid">
+                    <p class="text-center mt-2">${option.name}</p>
+                </div>
+            `;
+            optionsContainer.appendChild(optionDiv);
+        });
+
+        // Show modal
+        const customizationModal = new bootstrap.Modal(document.getElementById('customizationModal'));
+        customizationModal.show();
+    }
+
+    // Select customization option
+    function selectCustomizationOption(optionId) {
+        customizationOption = optionId;
+
+        // Highlight selected option
+        document.querySelectorAll('.customization-option').forEach(el => {
+            el.classList.remove('selected');
+        });
+
+        document.querySelector(`.customization-option[data-id="${optionId}"]`).classList.add('selected');
+    }
+
+    // Save customization
+    document.getElementById('save-customization-btn').addEventListener('click', function() {
+        if (!customizationOption) {
+            showAlert('Vui lòng chọn một tùy chọn!', 'error');
+            return;
+        }
+
+        if (currentBalance < customizationCost) {
+            showAlert('Bạn không đủ tiền để mua nó!', 'error');
+            return;
+        }
+
+        fetch('/api/update-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                type: customizationType,
+                option: customizationOption,
+                cost: customizationCost
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                currentBalance = data.newBalance;
+                updateBalanceDisplay();
+                showAlert('Cập nhật thành công! Tùy chọn đã được thêm vào balo của bạn.', 'success');
+
+                // Close modal
+                const customizationModal = bootstrap.Modal.getInstance(document.getElementById('customizationModal'));
+                customizationModal.hide();
+
+                // Stay on shop page after successful purchase
+            } else {
+                showAlert(data.message || 'Có lỗi xảy ra!', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Có lỗi xảy ra!', 'error');
+        });
+    });
+
+    // Show alert helper
+    function showAlert(message, type) {
+        const alertContainer = document.createElement('div');
+        alertContainer.className = `alert alert-${type === 'error' ? 'danger' : 'success'} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+        alertContainer.style.zIndex = '9999';
+        alertContainer.style.minWidth = '300px';
+        alertContainer.style.textAlign = 'center';
+        alertContainer.setAttribute('role', 'alert');
+        alertContainer.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+
+        document.body.appendChild(alertContainer);
+
+        // Animate entrance
+        setTimeout(() => {
+            alertContainer.style.opacity = '1';
+        }, 10);
+
+        // Auto dismiss after delay
+        setTimeout(() => {
+            alertContainer.classList.remove('show');
+            setTimeout(() => alertContainer.remove(), 300);
+        }, 3000);
+    }
+</script>
+{% endblock %}

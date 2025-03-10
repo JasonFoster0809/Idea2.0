@@ -1,0 +1,403 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4" data-aos="fade-down">Ngân hàng câu hỏi</h2>
+    
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow" data-aos="fade-up">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <label for="filter-subject" class="form-label">Môn học</label>
+                            <select class="form-select" id="filter-subject">
+                                <option value="">Tất cả</option>
+                                {% for subject in subjects %}
+                                <option value="{{ subject }}">{{ subject }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="filter-grade" class="form-label">Lớp</label>
+                            <select class="form-select" id="filter-grade">
+                                <option value="">Tất cả</option>
+                                {% for grade in grades %}
+                                <option value="{{ grade }}">Lớp {{ grade }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="filter-difficulty" class="form-label">Độ khó</label>
+                            <select class="form-select" id="filter-difficulty">
+                                <option value="">Tất cả</option>
+                                <option value="Easy">Dễ</option>
+                                <option value="Medium">Trung bình</option>
+                                <option value="Hard">Khó</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3 d-flex align-items-end">
+                            <button class="btn btn-primary w-100" onclick="applyFilters()">Lọc</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow" data-aos="fade-up">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Môn học</th>
+                                    <th>Lớp</th>
+                                    <th>Độ khó</th>
+                                    <th>Câu hỏi</th>
+                                    <th>Đáp án đúng</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="questions-table-body">
+                                {% for question in questions %}
+                                <tr>
+                                    <td>{{ question.id }}</td>
+                                    <td>{{ question.subject }}</td>
+                                    <td>{{ question.grade }}</td>
+                                    <td>
+                                        {% if question.difficulty == 'Easy' %}
+                                        <span class="badge bg-success">Dễ</span>
+                                        {% elif question.difficulty == 'Medium' %}
+                                        <span class="badge bg-warning text-dark">Trung bình</span>
+                                        {% elif question.difficulty == 'Hard' %}
+                                        <span class="badge bg-danger">Khó</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ question.question_text[:50] }}{% if question.question_text|length > 50 %}...{% endif %}</td>
+                                    <td>{{ question.correct_answer }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info" onclick="viewQuestion({{ question.id }})">Chi tiết</button>
+                                        <button class="btn btn-sm btn-danger" onclick="deleteQuestion({{ question.id }})">Xóa</button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="d-flex justify-content-center mt-4">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination" id="pagination">
+                                <!-- Pagination will be added dynamically -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Question Detail Modal -->
+<div class="modal fade" id="questionModal" tabindex="-1" aria-labelledby="questionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="questionModalLabel">Chi tiết câu hỏi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <h6>Câu hỏi:</h6>
+                    <p id="modal-question-text"></p>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>A:</h6>
+                        <p id="modal-option-a"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>B:</h6>
+                        <p id="modal-option-b"></p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>C:</h6>
+                        <p id="modal-option-c"></p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>D:</h6>
+                        <p id="modal-option-d"></p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <h6>Đáp án đúng:</h6>
+                    <p id="modal-correct-answer"></p>
+                </div>
+                <div class="mb-3">
+                    <h6>Giải thích:</h6>
+                    <p id="modal-explanation"></p>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6>Môn học:</h6>
+                        <p id="modal-subject"></p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Lớp:</h6>
+                        <p id="modal-grade"></p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6>Độ khó:</h6>
+                        <p id="modal-difficulty"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-danger" id="modal-delete-btn">Xóa câu hỏi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Bạn có chắc chắn muốn xóa câu hỏi này không?</p>
+                <p class="text-danger">Lưu ý: Hành động này không thể hoàn tác.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete-btn">Xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let currentQuestionId = null;
+    let currentPage = 1;
+    const questionsPerPage = 20;
+    
+    // Apply filters
+    function applyFilters() {
+        const subject = document.getElementById('filter-subject').value;
+        const grade = document.getElementById('filter-grade').value;
+        const difficulty = document.getElementById('filter-difficulty').value;
+        
+        fetch(`/api/questions?subject=${subject}&grade=${grade}&difficulty=${difficulty}&page=${currentPage}&per_page=${questionsPerPage}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    renderQuestions(data.questions);
+                    renderPagination(data.total_pages);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Có lỗi xảy ra khi lọc câu hỏi!', 'error');
+            });
+    }
+    
+    // Render questions
+    function renderQuestions(questions) {
+        const tableBody = document.getElementById('questions-table-body');
+        tableBody.innerHTML = '';
+        
+        if (questions.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center">Không có câu hỏi nào phù hợp với bộ lọc</td>
+                </tr>
+            `;
+            return;
+        }
+        
+        questions.forEach(question => {
+            const difficultyBadge = getDifficultyBadge(question.difficulty);
+            
+            tableBody.innerHTML += `
+                <tr>
+                    <td>${question.id}</td>
+                    <td>${question.subject}</td>
+                    <td>${question.grade}</td>
+                    <td>${difficultyBadge}</td>
+                    <td>${question.question_text.substring(0, 50)}${question.question_text.length > 50 ? '...' : ''}</td>
+                    <td>${question.correct_answer}</td>
+                    <td>
+                        <button class="btn btn-sm btn-info" onclick="viewQuestion(${question.id})">Chi tiết</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteQuestion(${question.id})">Xóa</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    // Render pagination
+    function renderPagination(totalPages) {
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+        
+        // Previous button
+        pagination.innerHTML += `
+            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Trước</a>
+            </li>
+        `;
+        
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            pagination.innerHTML += `
+                <li class="page-item ${currentPage === i ? 'active' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                </li>
+            `;
+        }
+        
+        // Next button
+        pagination.innerHTML += `
+            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Sau</a>
+            </li>
+        `;
+    }
+    
+    // Change page
+    function changePage(page) {
+        currentPage = page;
+        applyFilters();
+    }
+    
+    // View question details
+    function viewQuestion(questionId) {
+        fetch(`/api/question/${questionId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const question = data.question;
+                    
+                    document.getElementById('modal-question-text').textContent = question.question_text;
+                    document.getElementById('modal-option-a').textContent = question.option_a;
+                    document.getElementById('modal-option-b').textContent = question.option_b;
+                    document.getElementById('modal-option-c').textContent = question.option_c;
+                    document.getElementById('modal-option-d').textContent = question.option_d;
+                    document.getElementById('modal-correct-answer').textContent = question.correct_answer;
+                    document.getElementById('modal-explanation').textContent = question.explanation || 'Không có giải thích';
+                    document.getElementById('modal-subject').textContent = question.subject;
+                    document.getElementById('modal-grade').textContent = `Lớp ${question.grade}`;
+                    document.getElementById('modal-difficulty').textContent = getDifficultyText(question.difficulty);
+                    
+                    currentQuestionId = question.id;
+                    
+                    // Update delete button
+                    document.getElementById('modal-delete-btn').onclick = function() {
+                        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                        const questionModal = bootstrap.Modal.getInstance(document.getElementById('questionModal'));
+                        questionModal.hide();
+                        deleteModal.show();
+                    };
+                    
+                    const questionModal = new bootstrap.Modal(document.getElementById('questionModal'));
+                    questionModal.show();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Có lỗi xảy ra khi tải chi tiết câu hỏi!', 'error');
+            });
+    }
+    
+    // Delete question
+    function deleteQuestion(questionId) {
+        currentQuestionId = questionId;
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
+    }
+    
+    // Confirm delete
+    document.getElementById('confirm-delete-btn').addEventListener('click', function() {
+        if (!currentQuestionId) return;
+        
+        fetch(`/api/question/${currentQuestionId}`, {
+            method: 'DELETE'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const deleteModal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
+                    deleteModal.hide();
+                    
+                    showAlert('Câu hỏi đã được xóa thành công!', 'success');
+                    applyFilters();
+                } else {
+                    showAlert(data.message || 'Có lỗi xảy ra khi xóa câu hỏi!', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Có lỗi xảy ra khi xóa câu hỏi!', 'error');
+            });
+    });
+    
+    // Utility functions
+    function getDifficultyBadge(difficulty) {
+        switch (difficulty) {
+            case 'Easy':
+                return '<span class="badge bg-success">Dễ</span>';
+            case 'Medium':
+                return '<span class="badge bg-warning text-dark">Trung bình</span>';
+            case 'Hard':
+                return '<span class="badge bg-danger">Khó</span>';
+            default:
+                return '<span class="badge bg-secondary">Không xác định</span>';
+        }
+    }
+    
+    function getDifficultyText(difficulty) {
+        switch (difficulty) {
+            case 'Easy': return 'Dễ';
+            case 'Medium': return 'Trung bình';
+            case 'Hard': return 'Khó';
+            default: return difficulty;
+        }
+    }
+    
+    // Show alert helper
+    function showAlert(message, type) {
+        const alertContainer = document.createElement('div');
+        alertContainer.className = `alert alert-${type === 'error' ? 'danger' : 'success'} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3`;
+        alertContainer.setAttribute('role', 'alert');
+        alertContainer.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        document.body.appendChild(alertContainer);
+        
+        setTimeout(() => {
+            alertContainer.classList.remove('show');
+            setTimeout(() => alertContainer.remove(), 300);
+        }, 3000);
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        applyFilters();
+    });
+</script>
+{% endblock %}

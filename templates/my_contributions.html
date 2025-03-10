@@ -1,0 +1,76 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="mb-4 text-center">Đóng góp của tôi</h2>
+            
+            {% if contributions %}
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Môn học</th>
+                                        <th>Lớp</th>
+                                        <th>Câu hỏi</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for contribution in contributions %}
+                                    <tr>
+                                        <td>{{ contribution.subject }}</td>
+                                        <td>{{ contribution.grade }}</td>
+                                        <td>
+                                            <a href="#" data-bs-toggle="collapse" data-bs-target="#question-{{ contribution.id }}">
+                                                {{ contribution.question|truncate(50) }}
+                                            </a>
+                                            <div class="collapse mt-2" id="question-{{ contribution.id }}">
+                                                <div class="card card-body">
+                                                    <p><strong>Câu hỏi:</strong> {{ contribution.question }}</p>
+                                                    <p><strong>A:</strong> {{ contribution.option_a }}</p>
+                                                    <p><strong>B:</strong> {{ contribution.option_b }}</p>
+                                                    <p><strong>C:</strong> {{ contribution.option_c }}</p>
+                                                    <p><strong>D:</strong> {{ contribution.option_d }}</p>
+                                                    <p><strong>Đáp án đúng:</strong> {{ contribution.correct_answer }}</p>
+                                                    <p><strong>Giải thích:</strong> {{ contribution.explanation }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ contribution.created_at.strftime('%d/%m/%Y') }}</td>
+                                        <td>
+                                            {% if contribution.approved %}
+                                                <span class="badge bg-success">Đã chấp nhận</span>
+                                            {% elif contribution.rejected %}
+                                                <span class="badge bg-danger">Đã từ chối</span>
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark">Đang xem xét</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <p class="mb-0">Bạn chưa có đóng góp nào. <a href="{{ url_for('contribute') }}">Đóng góp câu hỏi ngay!</a></p>
+                </div>
+            {% endif %}
+
+            <div class="text-center mt-4">
+                <a href="{{ url_for('contribute') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Đóng góp câu hỏi mới
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

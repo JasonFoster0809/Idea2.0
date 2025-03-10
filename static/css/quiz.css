@@ -1,0 +1,195 @@
+
+/* Quiz Container */
+.quiz-container {
+    padding: 2rem 0;
+}
+
+/* Quiz Header */
+.quiz-header {
+    margin-bottom: 1.5rem;
+}
+
+.quiz-info .badge {
+    margin-left: 0.5rem;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+}
+
+/* Timer */
+.timer {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.5);
+    min-width: 80px;
+    text-align: center;
+}
+
+.timer.text-danger {
+    animation: pulse 1s infinite;
+    background-color: rgba(255, 220, 220, 0.5);
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* Question Options */
+.option-btn {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.option-btn .option-letter {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    text-align: center;
+    background-color: rgba(0, 123, 255, 0.1);
+    border-radius: 50%;
+    margin-right: 0.75rem;
+}
+
+.option-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.option-btn.selected {
+    font-weight: bold;
+}
+
+.option-btn.btn-success,
+.option-btn.btn-danger {
+    color: white;
+}
+
+.option-btn.btn-success .option-letter,
+.option-btn.btn-danger .option-letter {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Answer Feedback */
+#answer-feedback {
+    margin-top: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+#feedback-alert {
+    padding: 1.25rem;
+}
+
+#reward-info {
+    margin-top: 1rem;
+    font-weight: bold;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Quiz Results */
+.result-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(to right, #4e73df, #36b9cc);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.result-circle-inner {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.result-circle-inner div:first-child {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #4e73df;
+}
+
+.result-label {
+    font-size: 0.9rem;
+    color: #858796;
+}
+
+.result-details {
+    margin-top: 2rem;
+}
+
+/* Grade Selection Modal */
+.grade-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.grade-btn.active {
+    background-color: #4e73df;
+    color: white;
+}
+
+/* Loading Animation */
+#loading-quiz {
+    padding: 3rem;
+}
+
+#loading-quiz .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .option-btn {
+        margin-bottom: 0.5rem;
+        padding: 0.5rem 0.75rem;
+    }
+    
+    .option-btn .option-letter {
+        width: 1.5rem;
+        height: 1.5rem;
+        line-height: 1.5rem;
+        margin-right: 0.5rem;
+    }
+    
+    .result-circle {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .result-circle-inner {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .result-circle-inner div:first-child {
+        font-size: 1.5rem;
+    }
+}
+
+/* Background Transitions */
+body {
+    transition: background-image 0.5s ease;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}

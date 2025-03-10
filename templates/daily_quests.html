@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4">Nhiệm vụ hằng ngày</h2>
+
+    <!-- Daily Quest Progress -->
+    <div class="card shadow mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3>Tiến độ nhiệm vụ hằng ngày: <span class="daily-quest-points">{{ current_user.daily_quest_points }}</span>/100</h3>
+            <button id="refreshQuests" class="btn btn-sm btn-success"><i class="fas fa-sync-alt"></i> Làm mới</button>
+        </div>
+        <div class="card-body">
+            <div class="progress mt-2 mb-3">
+                <div class="progress-bar bg-success" role="progressbar" 
+                     style="width: {{ (current_user.daily_quest_points / 100) * 100 }}%" 
+                     aria-valuenow="{{ current_user.daily_quest_points }}" 
+                     aria-valuemin="0" aria-valuemax="100">
+                    {{ current_user.daily_quest_points }}/100
+                </div>
+            </div>
+
+            <div class="daily-rewards">
+                <div class="row text-center mb-3">
+                    <div class="col">
+                        <div class="reward-milestone {% if current_user.daily_quest_points >= 20 %}milestone-reached{% endif %}" data-milestone="20">
+                            <div class="milestone-icon">20</div>
+                            <small>20 xu</small>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="reward-milestone {% if current_user.daily_quest_points >= 40 %}milestone-reached{% endif %}" data-milestone="40">
+                            <div class="milestone-icon">40</div>
+                            <small>40 xu</small>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="reward-milestone {% if current_user.daily_quest_points >= 60 %}milestone-reached{% endif %}" data-milestone="60">
+                            <div class="milestone-icon">60</div>
+                            <small>60 xu</small>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="reward-milestone {% if current_user.daily_quest_points >= 80 %}milestone-reached{% endif %}" data-milestone="80">
+                            <div class="milestone-icon">80</div>
+                            <small>80 xu</small>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="reward-milestone {% if current_user.daily_quest_points >= 100 %}milestone-reached{% endif %}" data-milestone="100">
+                            <div class="milestone-icon">100</div>
+                            <small>+25% xu</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Hoàn thành các nhiệm vụ để nhận thưởng. Mỗi cột mốc sẽ tự động mở khóa phần thưởng.
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Quests List -->
+    <div class="card shadow">
+        <div class="card-header">
+            <h3>Nhiệm vụ của ngày hôm nay</h3>
+        </div>
+        <div class="card-body">
+            <div class="row" id="questsList">
+                {% for quest in daily_quests %}
+                <div class="col-md-6 mb-3">
+                    <div class="quest-card {% if quest.completed %}completed{% endif %}" data-quest-id="{{ quest.id }}">
+                        <div class="quest-info">
+                            <h4>{{ quest.description }}</h4>
+                            <div class="quest-rewards">
+                                <span class="badge bg-primary">{{ quest.points }} điểm</span>
+                                <span class="badge bg-success">+5 XP</span>
+                                <span class="badge bg-warning text-dark">+5 xu</span>
+                            </div>
+                        </div>
+                        <div class="quest-status">
+                            {% if quest.completed %}
+                            <span class="badge bg-success"><i class="fas fa-check-circle"></i> Hoàn thành</span>
+                            {% else %}
+                            <a href="{{ quest.link }}" class="btn btn-sm btn-primary">Thực hiện</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const refreshButton = document.getElementById('refreshQuests');
+
+    if (refreshButton) {
+        refreshButton.addEventListener('click', function() {
+            // Hiển thị loading
+            refreshButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang làm mới...';
+            refreshButton.disabled = true;
+
+            // Gọi API để làm mới trạng thái nhiệm vụ
+            fetch('/quiz_complete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'refresh',
+                    score: 0,
+                    total: 0
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Cập nhật UI thay vì tải lại trang
+                    updateQuestUI(data);
+                    refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Làm mới';
+                    refreshButton.disabled = false;
+
+                    showToast('Đã cập nhật trạng thái nhiệm vụ!', 'success');
+                } else {
+                    showToast('Không thể làm mới: ' + data.message, 'error');
+                    refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Làm mới';
+                    refreshButton.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khi làm mới nhiệm vụ:', error);
+                refreshButton.innerHTML = '<i class="fas fa-sync-alt"></i> Làm mới';
+                refreshButton.disabled = false;
+                showToast('Có lỗi xảy ra khi làm mới!', 'error');
+            });
+        });
+    }
+
+    function updateQuestUI(data) {
+        console.log("Cập nhật UI nhiệm vụ với dữ liệu:", data);
+        
+        // Cập nhật điểm nhiệm vụ
+        const pointsElement = document.querySelector('.daily-quest-points');
+        if (pointsElement) {
+            pointsElement.textContent = data.daily_points;
+        }
+
+        // Cập nhật thanh tiến độ
+        const progressBar = document.querySelector('.progress-bar');
+        if (progressBar) {
+            progressBar.style.width = `${(data.daily_points / 100) * 100}%`;
+            progressBar.setAttribute('aria-valuenow', data.daily_points);
+            progressBar.textContent = `${data.daily_points}/100`;
+        }
+
+        // Cập nhật trạng thái cột mốc
+        const milestones = document.querySelectorAll('.reward-milestone');
+        milestones.forEach(milestone => {
+            const milestoneValue = parseInt(milestone.getAttribute('data-milestone'));
+            if (data.daily_points >= milestoneValue) {
+                milestone.classList.add('milestone-reached');
+            } else {
+                milestone.classList.remove('milestone-reached');
+            }
+        });
+
+        // Cập nhật trạng thái nhiệm vụ
+        if (data.quest_statuses) {
+            console.log("Cập nhật trạng thái nhiệm vụ:", data.quest_statuses);
+            data.quest_statuses.forEach(quest => {
+                console.log(`Quest ID: ${quest.id}, Status: ${quest.completed ? 'Hoàn thành' : 'Chưa hoàn thành'}`);
+                
+                // Tìm quest card theo ID
+                const questCard = document.querySelector(`.quest-card[data-quest-id="${quest.id}"]`);
+                if (questCard) {
+                    console.log(`Đã tìm thấy quest card cho ID ${quest.id}`);
+                    
+                    if (quest.completed) {
+                        questCard.classList.add('completed');
+                        const statusElement = questCard.querySelector('.quest-status');
+                        if (statusElement) {
+                            statusElement.innerHTML = '<span class="badge bg-success"><i class="fas fa-check-circle"></i> Hoàn thành</span>';
+                        }
+                    }
+                } else {
+                    console.log(`Không tìm thấy quest card cho ID ${quest.id}`);
+                    // Cố gắng tìm bằng mô tả
+                    const allQuestCards = document.querySelectorAll('.quest-card');
+                    allQuestCards.forEach(card => {
+                        const description = card.querySelector('h4')?.textContent;
+                        if (description && description === quest.description) {
+                            console.log(`Tìm thấy quest card theo mô tả: ${description}`);
+                            if (quest.completed) {
+                                card.classList.add('completed');
+                                const statusElement = card.querySelector('.quest-status');
+                                if (statusElement) {
+                                    statusElement.innerHTML = '<span class="badge bg-success"><i class="fas fa-check-circle"></i> Hoàn thành</span>';
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Kiểm tra và hiển thị thông báo phần thưởng nếu có
+        if (data.completed_quests && data.completed_quests.length > 0) {
+            data.completed_quests.forEach(questDesc => {
+                showToast(`✓ ${questDesc}`, 'success');
+            });
+            
+            // Hiển thị thông báo tổng hợp phần thưởng
+            if (data.xp_earned > 0 || data.coin_rewards > 0) {
+                let rewardMsg = 'Bạn đã nhận được: ';
+                let rewards = [];
+                
+                if (data.xp_earned > 0) {
+                    rewards.push(`${data.xp_earned} XP`);
+                }
+                
+                if (data.coin_rewards > 0) {
+                    rewards.push(`${data.coin_rewards} xu`);
+                }
+                
+                if (data.milestone_rewards > 0) {
+                    rewards.push(`${data.milestone_rewards} xu cột mốc`);
+                }
+                
+                rewardMsg += rewards.join(', ');
+                
+                setTimeout(() => {
+                    showToast(rewardMsg, 'info');
+                }, 1000);
+            }
+        }
+    }
+
+    function showToast(message, type) {
+        // Tạo toast container nếu chưa tồn tại
+        let toastContainer = document.querySelector('.toast-container');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+            document.body.appendChild(toastContainer);
+        }
+
+        // Tạo toast
+        const toastId = 'toast-' + Date.now();
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : type} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
+        toast.setAttribute('aria-atomic', 'true');
+        toast.setAttribute('id', toastId);
+
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+
+        toastContainer.appendChild(toast);
+
+        // Hiển thị toast
+        const bsToast = new bootstrap.Toast(toast, {
+            animation: true,
+            autohide: true,
+            delay: 5000
+        });
+
+        bsToast.show();
+
+        // Xóa sau khi ẩn
+        toast.addEventListener('hidden.bs.toast', function() {
+            this.remove();
+        });
+    }
+
+    //Kiểm tra cập nhật nhiệm vụ khi load trang
+    fetch('/quiz_complete', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: 'refresh'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Dữ liệu nhiệm vụ hằng ngày: ", data);
+        if (data.success) {
+            // Cập nhật UI
+            updateQuestUI(data);
+        }
+    })
+    .catch(error => {
+        console.error('Lỗi khi tải dữ liệu nhiệm vụ:', error);
+    });
+});
+</script>
+{% endblock %}

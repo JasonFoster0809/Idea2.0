@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4" data-aos="fade-down">Bảng điều khiển Admin</h2>
+
+    <div class="row g-4">
+        <!-- Quick Links -->
+        <div class="col-md-12">
+            <div class="nav-buttons mb-4">
+                <a href="{{ url_for('admin_users') }}" class="btn btn-primary me-2">
+                    <i data-feather="users"></i> Quản lý người dùng
+                </a>
+                <a href="{{ url_for('admin_contributions') }}" class="btn btn-success me-2">
+                    <i data-feather="file-text"></i> Quản lý đóng góp
+                </a>
+                <a href="{{ url_for('admin_fortune_cookies') }}" class="btn btn-info me-2">
+                    <i data-feather="gift"></i> Quản lý Fortune Cookies
+                </a>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded">
+                    <h2 class="stat-number text-primary mb-0" id="total-users">{{ total_users }}</h2>
+                    <p class="text-muted mb-0">Tổng người dùng</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded">
+                    <h2 class="stat-number text-warning mb-0" id="pending-contributions">{{ pending_contributions }}</h2>
+                    <p class="text-muted mb-0">Đóng góp chờ duyệt</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded">
+                    <h2 class="stat-number text-success mb-0" id="total-questions">{{ total_questions }}</h2>
+                    <p class="text-muted mb-0">Tổng câu hỏi</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm p-4 mb-4 bg-white rounded">
+                    <h2 class="stat-number text-info mb-0" id="new-users">{{ new_users }}</h2>
+                    <p class="text-muted mb-0">Người dùng mới</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Contributors -->
+        <div class="col-md-12 mt-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4 class="card-title">Người đóng góp hàng đầu</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Người dùng</th>
+                                    <th>Số lượng đóng góp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user, contributions in top_contributors %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ contributions }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

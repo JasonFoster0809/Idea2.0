@@ -1,0 +1,102 @@
+
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mt-5 mb-4">Quản lý thành tựu</h2>
+    
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Thêm thành tựu mới</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{{ url_for('admin_add_achievement') }}">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="name">Tên thành tựu</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="icon">Icon (filename)</label>
+                            <input type="text" class="form-control" id="icon" name="icon" required>
+                            <small class="form-text text-muted">Ví dụ: achievement_10_easy.png</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="description">Mô tả</label>
+                    <textarea class="form-control" id="description" name="description" rows="2" required></textarea>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="xp_reward">Phần thưởng XP</label>
+                            <input type="number" class="form-control" id="xp_reward" name="xp_reward" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="coin_reward">Phần thưởng Xu</label>
+                            <input type="number" class="form-control" id="coin_reward" name="coin_reward" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="item_reward">Vật phẩm thưởng</label>
+                            <input type="text" class="form-control" id="item_reward" name="item_reward">
+                            <small class="form-text text-muted">Để trống nếu không có</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Thêm thành tựu</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card shadow">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách thành tựu</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên</th>
+                            <th>Mô tả</th>
+                            <th>XP</th>
+                            <th>Xu</th>
+                            <th>Vật phẩm</th>
+                            <th>Tác vụ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for achievement in achievements %}
+                        <tr>
+                            <td>{{ achievement.id }}</td>
+                            <td>{{ achievement.name }}</td>
+                            <td>{{ achievement.description }}</td>
+                            <td>{{ achievement.xp_reward }}</td>
+                            <td>{{ achievement.coin_reward }}</td>
+                            <td>{{ achievement.item_reward or 'Không có' }}</td>
+                            <td>
+                                <form method="post" action="{{ url_for('admin_delete_achievement', id=achievement.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa thành tựu này?')">Xóa</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

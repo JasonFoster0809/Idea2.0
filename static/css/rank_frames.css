@@ -1,0 +1,102 @@
+
+/* Rank frames styling */
+.rank-frame {
+    position: relative;
+    display: inline-block;
+    padding: 5px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.rank-frame:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.rank-frame img {
+    width: 100%;
+    height: auto;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.rank-bronze {
+    background: linear-gradient(45deg, #804A00, #B08D57);
+    border: 3px solid #CD7F32;
+}
+
+.rank-silver {
+    background: linear-gradient(45deg, #757575, #C0C0C0);
+    border: 3px solid #C0C0C0;
+}
+
+.rank-gold {
+    background: linear-gradient(45deg, #FFD700, #FFC107);
+    border: 3px solid #FFD700;
+}
+
+.rank-platinum {
+    background: linear-gradient(45deg, #78909C, #B0BEC5);
+    border: 3px solid #E5E4E2;
+}
+
+.rank-diamond {
+    background: linear-gradient(45deg, #48c6ef, #6f86d6);
+    border: 3px solid #B9F2FF;
+}
+
+.rank-master {
+    background: linear-gradient(45deg, #FF416C, #FF4B2B);
+    border: 3px solid #FF4B2B;
+}
+
+.rank-grandmaster {
+    background: linear-gradient(45deg, #654ea3, #eaafc8);
+    border: 3px solid #654ea3;
+}
+
+.rank-legend {
+    background: linear-gradient(45deg, #396afc, #2948ff);
+    border: 3px solid #396afc;
+    animation: rainbow-border 3s linear infinite;
+}
+
+@keyframes rainbow-border {
+    0% { border-color: #ff0000; }
+    17% { border-color: #ff8000; }
+    33% { border-color: #ffff00; }
+    50% { border-color: #00ff00; }
+    67% { border-color: #0000ff; }
+    83% { border-color: #8000ff; }
+    100% { border-color: #ff0000; }
+}
+
+.rank-progress-container {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+.rank-progress-bar {
+    height: 12px;
+    border-radius: 10px;
+    background: linear-gradient(to right, #4cc9f0, #4361ee);
+    transition: width 0.5s ease;
+}
+
+.rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    margin-right: 0.5rem;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+}
