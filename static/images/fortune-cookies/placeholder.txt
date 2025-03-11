@@ -1,0 +1,11 @@
+
+Please add the following images to this folder:
+- fortune-cookie-closed.png - A closed fortune cookie image
+- fortune-cookie-left.png - Left half of an open fortune cookie
+- fortune-cookie-right.png - Right half of an open fortune cookie
+Upload your fortune cookie images here:
+- cookie-closed.png
+- cookie-left.png
+- cookie-right.png
+
+Each image should be about 200x150 pixels.

@@ -1,0 +1,634 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container quiz-container">
+    <div id="quiz-setup" class="text-center">
+        <h2 class="mb-4" data-aos="fade-down">Bắt đầu làm bài</h2>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow" data-aos="fade-up">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="subject-select" class="form-label">Chọn môn học</label>
+                            <select class="form-select" id="subject-select">
+                                {% for subject in subjects %}
+                                <option value="{{ subject }}">{{ subject }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="difficulty-select" class="form-label">Chọn mức độ</label>
+                            <select class="form-select" id="difficulty-select">
+                                <option value="Easy">Dễ</option>
+                                <option value="Medium">Trung bình</option>
+                                <option value="Hard">Khó</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary" id="start-quiz-btn">Bắt đầu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-quiz" class="text-center my-5" style="display:none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3">Đang tải câu hỏi...</p>
+    </div>
+
+    <div id="quiz-section" style="display:none;">
+        <div class="quiz-header">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 id="quiz-subject"></h3>
+                <div class="quiz-info">
+                    <span class="badge bg-primary" id="quiz-difficulty"></span>
+                    <span class="badge bg-secondary" id="quiz-grade"></span>
+                </div>
+            </div>
+
+            <div class="progress" style="height: 10px;">
+                <div class="progress-bar" id="quiz-progress" role="progressbar" style="width: 0%"></div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-2 mb-4">
+                <div><span id="current-question">1</span>/<span id="total-questions">10</span></div>
+                <div class="timer" id="question-timer">00:00</div>
+            </div>
+        </div>
+
+        <div class="card shadow" data-aos="fade-up">
+            <div class="card-body">
+                <h4 id="question-text" class="mb-4"></h4>
+
+                <div class="options-container">
+                    <div class="row">
+                        <div class="col-12 col-md-6 mb-3">
+                            <button class="btn btn-outline-primary option-btn w-100" data-option="A" onclick="selectAnswer('A')">
+                                <span class="option-letter">A</span>
+                                <span id="option-a-text"></span>
+                            </button>
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            <button class="btn btn-outline-primary option-btn w-100" data-option="B" onclick="selectAnswer('B')">
+                                <span class="option-letter">B</span>
+                                <span id="option-b-text"></span>
+                            </button>
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            <button class="btn btn-outline-primary option-btn w-100" data-option="C" onclick="selectAnswer('C')">
+                                <span class="option-letter">C</span>
+                                <span id="option-c-text"></span>
+                            </button>
+                        </div>
+                        <div class="col-12 col-md-6 mb-3">
+                            <button class="btn btn-outline-primary option-btn w-100" data-option="D" onclick="selectAnswer('D')">
+                                <span class="option-letter">D</span>
+                                <span id="option-d-text"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="answer-feedback" class="mt-4" style="display:none;">
+                    <div class="alert" id="feedback-alert" role="alert">
+                        <h5 id="feedback-title"></h5>
+                        <p id="feedback-text"></p>
+                        <div id="reward-info" class="d-flex justify-content-between" style="display:none;">
+                            <span>+<span id="xp-gained">0</span> XP</span>
+                            <span>+<span id="coins-gained">0</span> Xu</span>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" id="next-question-btn" onclick="nextQuestion()">Câu tiếp theo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="quiz-result" style="display:none;" class="text-center">
+        <div class="card shadow" data-aos="fade-up">
+            <div class="card-body">
+                <h3 class="mb-4">Kết quả</h3>
+                <div class="result-circle">
+                    <div class="result-circle-inner">
+                        <div>
+                            <span id="correct-count">0</span>/<span id="total-count">10</span>
+                        </div>
+                        <div class="result-label">Câu đúng</div>
+                    </div>
+                </div>
+
+                <div class="result-details mt-4">
+                    <p>Bạn đã trả lời đúng <span id="correct-percentage">0%</span> câu hỏi.</p>
+                    <p id="result-message"></p>
+                </div>
+
+                <button class="btn btn-primary mt-3" onclick="backToSetup()">Quay lại</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for grade selection -->
+    <div class="modal fade" id="gradeSelectionModal" tabindex="-1" aria-labelledby="gradeSelectionModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="gradeSelectionModalLabel">Chọn khối lớp</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Vui lòng chọn khối lớp cho bài kiểm tra:</p>
+                    <div class="d-flex justify-content-around">
+                        <button class="btn btn-outline-primary grade-btn" onclick="selectGrade(10)">Lớp 10</button>
+                        <button class="btn btn-outline-primary grade-btn" onclick="selectGrade(11)">Lớp 11</button>
+                        <button class="btn btn-outline-primary grade-btn" onclick="selectGrade(12)">Lớp 12</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="confirmGradeBtn" disabled>Xác nhận</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for not enough questions -->
+    <div class="modal fade" id="notEnoughQuestionsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Không đủ câu hỏi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="notEnoughQuestionsMessage">Hiện tại không đủ câu hỏi cho lựa chọn của bạn. Vui lòng chọn môn học khác hoặc mức độ khác.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đã hiểu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let quiz = {
+        questions: [],
+        currentIndex: 0,
+        timeLimit: 0,
+        timerInterval: null,
+        timeRemaining: 0,
+        correctCount: 0,
+        subject: '',
+        difficulty: '',
+        grade: 0,
+        selectedGrade: null
+    };
+
+    // Open grade selection modal
+    function confirmGradeSelection() {
+        quiz.selectedGrade = null;
+        document.querySelectorAll('.grade-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.getElementById('confirmGradeBtn').disabled = true;
+
+        const gradeModal = new bootstrap.Modal(document.getElementById('gradeSelectionModal'));
+        gradeModal.show();
+
+        // Set up confirmation button
+        document.getElementById('confirmGradeBtn').onclick = function() {
+            if (quiz.selectedGrade) {
+                gradeModal.hide();
+                startQuiz();
+            }
+        };
+    }
+
+    // Select grade
+    function selectGrade(grade) {
+        quiz.selectedGrade = grade;
+        document.querySelectorAll('.grade-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        document.getElementById('confirmGradeBtn').disabled = false;
+    }
+
+    // Start the quiz
+    function startQuiz() {
+        quiz.subject = document.getElementById('subject-select').value;
+        quiz.difficulty = document.getElementById('difficulty-select').value;
+        quiz.grade = quiz.selectedGrade;
+
+        // Show loading indicator
+        document.getElementById('quiz-setup').style.display = 'none';
+        document.getElementById('loading-quiz').style.display = 'block';
+
+        // Set background based on subject
+        setBackgroundForSubject(quiz.subject);
+
+        // Fetch questions from server
+        fetch('/fetch_questions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                subject: quiz.subject,
+                difficulty: quiz.difficulty,
+                grade: quiz.grade
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('loading-quiz').style.display = 'none';
+
+            if (data.success) {
+                quiz.questions = data.questions;
+                quiz.timeLimit = data.time_limit;
+                quiz.currentIndex = 0;
+                quiz.correctCount = 0;
+
+                // Show quiz section
+                document.getElementById('quiz-section').style.display = 'block';
+
+                // Update quiz header
+                document.getElementById('quiz-subject').textContent = quiz.subject;
+                document.getElementById('quiz-difficulty').textContent = difficultyText(quiz.difficulty);
+                document.getElementById('quiz-grade').textContent = `Lớp ${quiz.grade}`;
+                document.getElementById('total-questions').textContent = quiz.questions.length;
+
+                // Load first question
+                loadQuestion();
+            } else {
+                // Show error modal for not enough questions
+                const notEnoughModal = new bootstrap.Modal(document.getElementById('notEnoughQuestionsModal'));
+                document.getElementById('notEnoughQuestionsMessage').textContent = 
+                    `Không đủ câu hỏi cho môn ${quiz.subject} ở mức độ ${difficultyText(quiz.difficulty)} cho lớp ${quiz.grade}. Vui lòng chọn môn học khác hoặc mức độ khác.`;
+                notEnoughModal.show();
+
+                // Show quiz setup again
+                document.getElementById('quiz-setup').style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('loading-quiz').style.display = 'none';
+            document.getElementById('quiz-setup').style.display = 'block';
+
+            // Show error modal
+            const notEnoughModal = new bootstrap.Modal(document.getElementById('notEnoughQuestionsModal'));
+            document.getElementById('notEnoughQuestionsMessage').textContent = 
+                'Đã xảy ra lỗi khi tải câu hỏi. Vui lòng thử lại sau.';
+            notEnoughModal.show();
+        });
+    }
+
+    // Load a question
+    function loadQuestion() {
+        const question = quiz.questions[quiz.currentIndex];
+
+        // Update progress
+        const progress = ((quiz.currentIndex + 1) / quiz.questions.length) * 100;
+        document.getElementById('quiz-progress').style.width = `${progress}%`;
+        document.getElementById('current-question').textContent = quiz.currentIndex + 1;
+
+        // Set question text
+        document.getElementById('question-text').textContent = question.question_text;
+
+        // Set options
+        document.getElementById('option-a-text').textContent = question.options.A;
+        document.getElementById('option-b-text').textContent = question.options.B;
+        document.getElementById('option-c-text').textContent = question.options.C;
+        document.getElementById('option-d-text').textContent = question.options.D;
+
+        // Reset option buttons
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.classList.remove('btn-success', 'btn-danger', 'selected');
+            btn.classList.add('btn-outline-primary');
+            btn.removeAttribute('disabled');
+        });
+
+        // Hide feedback
+        document.getElementById('answer-feedback').style.display = 'none';
+
+        // Start timer
+        startQuestionTimer();
+    }
+
+    // Start question timer
+    function startQuestionTimer() {
+        // Clear any existing timer
+        if (quiz.timerInterval) {
+            clearInterval(quiz.timerInterval);
+        }
+
+        quiz.timeRemaining = quiz.timeLimit;
+        updateTimerDisplay();
+
+        quiz.timerInterval = setInterval(() => {
+            quiz.timeRemaining--;
+            updateTimerDisplay();
+
+            if (quiz.timeRemaining <= 0) {
+                clearInterval(quiz.timerInterval);
+                timeUp();
+            }
+        }, 1000);
+    }
+
+    // Update timer display
+    function updateTimerDisplay() {
+        const minutes = Math.floor(quiz.timeRemaining / 60);
+        const seconds = quiz.timeRemaining % 60;
+        document.getElementById('question-timer').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        // Change color when time is running low
+        if (quiz.timeRemaining <= 10) {
+            document.getElementById('question-timer').classList.add('text-danger');
+        } else {
+            document.getElementById('question-timer').classList.remove('text-danger');
+        }
+    }
+
+    // Time's up handler
+    function timeUp() {
+        // Disable all options
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.setAttribute('disabled', true);
+        });
+
+        // Show correct answer
+        showAnswer(null);
+    }
+
+    // Select an answer
+    function selectAnswer(option) {
+        // Stop timer
+        clearInterval(quiz.timerInterval);
+
+        // Disable all options
+        document.querySelectorAll('.option-btn').forEach(btn => {
+            btn.setAttribute('disabled', true);
+        });
+
+        // Highlight selected option
+        const selectedBtn = document.querySelector(`.option-btn[data-option="${option}"]`);
+        selectedBtn.classList.add('selected');
+
+        // Show answer
+        showAnswer(option);
+    }
+
+    // Show the answer
+    function showAnswer(userAnswer) {
+        const question = quiz.questions[quiz.currentIndex];
+
+        // Send answer to server
+        fetch('/answer_question', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                question_id: question.id,
+                answer: userAnswer
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Highlight correct answer
+            const correctBtn = document.querySelector(`.option-btn[data-option="${data.correct_answer}"]`);
+            correctBtn.classList.remove('btn-outline-primary');
+            correctBtn.classList.add('btn-success');
+
+            // If user answer was wrong, highlight it
+            if (userAnswer && userAnswer !== data.correct_answer) {
+                const userBtn = document.querySelector(`.option-btn[data-option="${userAnswer}"]`);
+                userBtn.classList.remove('btn-outline-primary');
+                userBtn.classList.add('btn-danger');
+            } else if (userAnswer === data.correct_answer) {
+                quiz.correctCount++;
+            }
+
+            // Show feedback
+            const feedbackAlert = document.getElementById('feedback-alert');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackText = document.getElementById('feedback-text');
+
+            if (!userAnswer) {
+                feedbackAlert.className = 'alert alert-warning';
+                feedbackTitle.textContent = 'Hết thời gian!';
+                document.getElementById('reward-info').style.display = 'none';
+            } else if (data.correct) {
+                feedbackAlert.className = 'alert alert-success';
+                feedbackTitle.textContent = 'Chính xác!';
+                document.getElementById('reward-info').style.display = 'flex';
+                document.getElementById('xp-gained').textContent = data.xp_gained;
+                document.getElementById('coins-gained').textContent = data.coins_gained;
+            } else {
+                feedbackAlert.className = 'alert alert-danger';
+                feedbackTitle.textContent = 'Sai rồi!';
+                document.getElementById('reward-info').style.display = 'none';
+            }
+
+            feedbackText.textContent = data.explanation || 'Không có lời giải thích cho câu hỏi này.';
+            document.getElementById('answer-feedback').style.display = 'block';
+
+            // If this is the last question, change the next button
+            if (quiz.currentIndex === quiz.questions.length - 1) {
+                document.getElementById('next-question-btn').textContent = 'Xem kết quả';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    // Go to the next question
+    function nextQuestion() {
+        quiz.currentIndex++;
+
+        if (quiz.currentIndex < quiz.questions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    // Show quiz results
+    function showResults() {
+        // Hide quiz section
+        document.getElementById('quiz-section').style.display = 'none';
+        document.getElementById('quiz-result').style.display = 'block';
+
+        // Update result display
+        document.getElementById('correct-count').textContent = quiz.correctCount;
+        document.getElementById('total-count').textContent = quiz.questions.length;
+
+        const percentage = Math.round((quiz.correctCount / quiz.questions.length) * 100);
+        document.getElementById('correct-percentage').textContent = `${percentage}%`;
+
+        // Set result message
+        let message = '';
+        if (percentage >= 90) {
+            message = 'Xuất sắc! Bạn giỏi quá!';
+        } else if (percentage >= 70) {
+            message = 'Rất tốt! Cố gắng hơn nữa nhé!';
+        } else if (percentage >= 50) {
+            message = 'Khá tốt! Nhưng cần cải thiện thêm.';
+        } else {
+            message = 'Hãy ôn lại kiến thức và thử lại nhé!';
+        }
+        document.getElementById('result-message').textContent = message;
+
+        // Report quiz completion to server
+        fetch('/quiz_complete', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                score: quiz.correctCount,
+                total: quiz.questions.length,
+                subject: quiz.subject
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Quiz completion reported:', data);
+
+            // After 3 seconds, redirect to mainquiz page
+            setTimeout(function() {
+                window.location.href = '/mainquiz';
+            }, 3000);
+        })
+        .catch(error => {
+            console.error('Error reporting quiz completion:', error);
+        });
+    }
+
+    // Helper function to convert difficulty to Vietnamese
+    function difficultyText(difficulty) {
+        const map = {
+            'Easy': 'Dễ',
+            'Medium': 'Trung bình',
+            'Hard': 'Khó'
+        };
+        return map[difficulty] || difficulty;
+    }
+
+    // Helper function to set background based on subject
+    function setBackgroundForSubject(subject) {
+        const bodyElement = document.body;
+        const subjectBackgrounds = {
+            'Toán': 'math-bg.jpg',
+            'Văn': 'literature-bg.jpg',
+            'Hóa': 'chemistry-bg.jpg',
+            'Lý': 'physics-bg.jpg',
+            'Sinh': 'biology-bg.jpg',
+            'Sử': 'history-bg.jpg',
+            'Địa': 'geography-bg.jpg',
+            'Kinh tế pháp luật': 'economics-bg.jpg',
+            'Tin học': 'informatics-bg.jpg',
+            'Tiếng Anh': 'english-bg.jpg'
+        };
+
+        const bgImage = subjectBackgrounds[subject] || 'default-bg.jpg';
+        bodyElement.style.backgroundImage = `url("{{ url_for('static', filename='images/backgrounds/') }}${bgImage}")`;
+    }
+
+    function backToSetup() {
+        document.getElementById('quiz-setup').style.display = 'block';
+        document.getElementById('quiz-result').style.display = 'none';
+    }
+
+    // Hàm bắt đầu quiz với tham số đã cho
+    function startQuizWithParams(subject, difficulty, grade) {
+        // Show loading screen
+        document.getElementById('quiz-setup').style.display = 'none';
+        document.getElementById('loading-quiz').classList.remove('d-none');
+
+        // Fetch questions from server
+        fetch('/fetch_questions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                subject: subject,
+                difficulty: difficulty,
+                grade: parseInt(grade)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('loading-quiz').style.display = 'none';
+
+            if (data.success) {
+                quiz.questions = data.questions;
+                quiz.timeLimit = data.time_limit;
+                quiz.currentIndex = 0;
+                quiz.correctCount = 0;
+
+                // Show quiz section
+                document.getElementById('quiz-section').style.display = 'block';
+
+                // Update quiz header
+                document.getElementById('quiz-subject').textContent = quiz.subject;
+                document.getElementById('quiz-difficulty').textContent = difficultyText(quiz.difficulty);
+                document.getElementById('quiz-grade').textContent = `Lớp ${quiz.grade}`;
+                document.getElementById('total-questions').textContent = quiz.questions.length;
+
+                // Load first question
+                loadQuestion();
+            } else {
+                // Show error modal for not enough questions
+                const notEnoughModal = new bootstrap.Modal(document.getElementById('notEnoughQuestionsModal'));
+                document.getElementById('notEnoughQuestionsMessage').textContent = 
+                    `Không đủ câu hỏi cho môn ${quiz.subject} ở mức độ ${difficultyText(quiz.difficulty)} cho lớp ${quiz.grade}. Vui lòng chọn môn học khác hoặc mức độ khác.`;
+                notEnoughModal.show();
+
+                // Show quiz setup again
+                document.getElementById('quiz-setup').style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('loading-quiz').style.display = 'none';
+            document.getElementById('quiz-setup').style.display = 'block';
+
+            // Show error modal
+            const notEnoughModal = new bootstrap.Modal(document.getElementById('notEnoughQuestionsModal'));
+            document.getElementById('notEnoughQuestionsMessage').textContent = 
+                'Đã xảy ra lỗi khi tải câu hỏi. Vui lòng thử lại sau.';
+            notEnoughModal.show();
+        });
+    }
+
+    // Tự động bắt đầu quiz nếu có tham số
+    {% if auto_start and selected_subject and selected_difficulty and selected_grade %}
+    document.addEventListener('DOMContentLoaded', function() {
+        startQuizWithParams('{{ selected_subject }}', '{{ selected_difficulty }}', '{{ selected_grade }}');
+    });
+    {% endif %}
+
+    // Quiz setup từ form
+    document.getElementById('start-quiz-btn').addEventListener('click', function() {
+        const subject = document.getElementById('subject-select').value;
+        const difficulty = document.getElementById('difficulty-select').value;
+        const grade = document.getElementById('grade-select').value;
+
+        startQuizWithParams(subject, difficulty, grade);
+    });
+</script>
+{% endblock %}

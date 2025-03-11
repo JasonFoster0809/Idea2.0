@@ -1,0 +1,164 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="text-center mb-4" data-aos="fade-down">Bắt đầu làm bài</h2>
+            
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <label for="subject-select" class="form-label">Chọn môn học</label>
+                        <select class="form-select" id="subject-select">
+                            {% for subject in subjects %}
+                            <option value="{{ subject }}">{{ subject }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="grade-select" class="form-label">Chọn lớp</label>
+                        <select class="form-select" id="grade-select">
+                            <option value="10">Lớp 10</option>
+                            <option value="11">Lớp 11</option>
+                            <option value="12">Lớp 12</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="difficulty-select" class="form-label">Chọn mức độ</label>
+                        <div class="difficulty-options">
+                            <div class="form-check difficulty-option">
+                                <input class="form-check-input" type="radio" name="difficulty" id="easy" value="easy" checked>
+                                <label class="form-check-label" for="easy">
+                                    <div class="d-flex w-100 justify-content-between align-items-center">
+                                        <span>Dễ</span>
+                                        <span class="badge bg-success">10 xu</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-check difficulty-option">
+                                <input class="form-check-input" type="radio" name="difficulty" id="medium" value="medium">
+                                <label class="form-check-label" for="medium">
+                                    <div class="d-flex w-100 justify-content-between align-items-center">
+                                        <span>Trung bình</span>
+                                        <span class="badge bg-warning text-dark">25 xu</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-check difficulty-option">
+                                <input class="form-check-input" type="radio" name="difficulty" id="hard" value="hard">
+                                <label class="form-check-label" for="hard">
+                                    <div class="d-flex w-100 justify-content-between align-items-center">
+                                        <span>Khó</span>
+                                        <span class="badge bg-danger">50 xu</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-check difficulty-option">
+                                <input class="form-check-input" type="radio" name="difficulty" id="all" value="all">
+                                <label class="form-check-label" for="all">
+                                    <div class="d-flex w-100 justify-content-between align-items-center">
+                                        <span>Tổng hợp (Ngẫu nhiên các mức độ)</span>
+                                        <span class="badge bg-primary">30 xu</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="startQuizBtn" class="btn btn-primary w-100">Bắt đầu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('startQuizBtn').addEventListener('click', function() {
+        const subject = document.getElementById('subject-select').value;
+        const grade = document.getElementById('grade-select').value;
+        const difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+        
+        // Kiểm tra đủ xu không
+        const requiredCoins = {
+            'easy': 10,
+            'medium': 25,
+            'hard': 50
+        };
+
+        const userCoins = {{ current_user.coins }};
+        if (userCoins < requiredCoins[difficulty]) {
+            alert(`Bạn không đủ xu để làm bài quiz này! Cần ${requiredCoins[difficulty]} xu.`);
+            return;
+        }
+        
+        // Gửi request lấy câu hỏi và hiển thị ngay trên trang này
+        fetch('/fetch_questions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                subject: subject,
+                difficulty: difficulty,
+                grade: parseInt(grade)
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Chuyển thẳng đến trang quiz với dữ liệu đã sẵn sàng
+                window.location.href = `/quiz?subject=${subject}&difficulty=${difficulty}&grade=${grade}`;
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Đã xảy ra lỗi khi tải câu hỏi. Vui lòng thử lại sau!');
+        });
+    });
+</script>
+
+<style>
+    .difficulty-options {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .difficulty-option {
+        padding: 12px 16px;
+        border-bottom: 1px solid #ddd;
+        margin: 0;
+    }
+    
+    .difficulty-option:last-child {
+        border-bottom: none;
+    }
+    
+    .form-check-input:checked + .form-check-label {
+        font-weight: bold;
+    }
+    
+    .badge {
+        padding: 6px 10px;
+        border-radius: 6px;
+    }
+    
+    #startQuizBtn {
+        padding: 12px;
+        font-size: 1.1rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    #startQuizBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}
