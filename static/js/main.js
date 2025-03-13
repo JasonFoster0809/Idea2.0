@@ -1199,7 +1199,53 @@ function selectGachaReward(index, reward) {
       showToast(data.message, 'danger');
     }
   })
-  .catch(error => {
+  .catch(error => console.error('Error:', error));
+}
+
+// Kiểm tra thành tựu sau khi đăng nhập
+document.addEventListener('DOMContentLoaded', function() {
+  // Nếu người dùng đã đăng nhập, kiểm tra thành tựu
+  if (document.body.classList.contains('logged-in')) {
+    checkAchievements();
+  }
+});
+
+// Hàm kiểm tra thành tựu
+function checkAchievements() {
+  fetch('/api/check-achievements')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success && data.new_achievements.length > 0) {
+        data.new_achievements.forEach(achievement => {
+          showAchievementNotification(achievement);
+        });
+      }
+    })
+    .catch(error => console.error('Error checking achievements:', error));
+}
+
+// Hiển thị thông báo thành tựu mới
+function showAchievementNotification(achievement) {
+  const achievementHtml = `
+    <div class="achievement-notification">
+      <div class="achievement-icon">
+        <img src="/static/images/icons/${achievement.icon}" alt="${achievement.name}" onerror="this.src='/static/images/icons/default.png'">
+      </div>
+      <div class="achievement-details">
+        <h4>Thành tựu mới!</h4>
+        <h5>${achievement.name}</h5>
+        <p>${achievement.description}</p>
+        <div class="achievement-rewards">
+          <span class="reward"><i class="fas fa-star"></i> ${achievement.xp_reward} XP</span>
+          <span class="reward"><i class="fas fa-coins"></i> ${achievement.coin_reward} Xu</span>
+          ${achievement.item_reward ? `<span class="reward"><i class="fas fa-gift"></i> ${achievement.item_reward}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+  
+  showToast(achievementHtml, 'achievement', 8000);
+} {
     console.error('Error:', error);
     showToast('Error receiving reward', 'danger');
   });

@@ -62,7 +62,7 @@ def check_achievement_conditions(user, achievement):
     
     # Kiểm tra các trường hợp đặc biệt trước
     
-    # Thành tựu "Người mới bắt đầu" - luôn được cấp khi đăng ký
+    # Thành tựu "Người mới bắt đầu" - luôn trả về True để đảm bảo được cấp
     if achievement_name == "Người mới bắt đầu":
         return True
     
