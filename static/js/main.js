@@ -1285,6 +1285,20 @@ function setupAdvancements() {
   const achievementsContainer = document.querySelector('#achievementTabs');
   if (!achievementsContainer) return;
 
+  // Đánh dấu thành tựu "Người mới bắt đầu" có thuộc tính đặc biệt
+  const allCards = document.querySelectorAll('.achievement-card');
+  allCards.forEach(card => {
+    const title = card.querySelector('h5');
+    if (title && title.textContent) {
+      card.setAttribute('data-achievement-name', title.textContent.trim());
+      
+      // Tự động thêm achieved cho thành tựu "Người mới bắt đầu"
+      if (title.textContent.trim() === "Người mới bắt đầu") {
+        card.classList.add('achieved');
+      }
+    }
+  });
+
   // Thêm hiệu ứng cho các thành tựu đã đạt được
   const achievedCards = document.querySelectorAll('.achievement-card.achieved');
   achievedCards.forEach(card => {
