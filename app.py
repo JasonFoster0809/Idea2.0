@@ -148,12 +148,28 @@ def contribute():
 
 @app.route('/api/check-achievements')
 @login_required
-def check_achievements():
-    """Check if the user has earned any new achievements"""
-    # This endpoint should return any new achievements the user has earned
-    # For now, we'll just return an empty list
+def check_user_achievements():
+    """Kiểm tra nếu người dùng đạt được thành tựu mới"""
+    from achievement_manager import check_achievements
+    
+    # Kiểm tra thành tựu mới
+    new_achievements = check_achievements(current_user.id)
+    
+    # Chuyển đổi thành tựu thành JSON
+    achievement_data = []
+    for achievement in new_achievements:
+        achievement_data.append({
+            'id': achievement.id,
+            'name': achievement.name,
+            'description': achievement.description,
+            'xp_reward': achievement.xp_reward,
+            'coin_reward': achievement.coin_reward,
+            'item_reward': achievement.item_reward,
+            'icon': achievement.icon
+        })
+    
     return jsonify({
-        'new_achievements': [],
+        'new_achievements': achievement_data,
         'success': True
     })
 
@@ -762,3 +778,76 @@ def add_question():
 
     flash('Đã thêm câu hỏi mới thành công!')
     return redirect(url_for('admin_question_bank'))
+
+@app.route('/api/user-info')
+@login_required
+def get_user_info():
+    """Trả về thông tin người dùng hiện tại"""
+    user_data = {
+        'id': current_user.id,
+        'username': current_user.username,
+        'coins': current_user.coins,
+        'experience': current_user.experience,
+        'rank': current_user.rank,
+        'success': True
+    }
+    return jsonify(user_data)
+
+@app.route('/api/use-item', methods=['POST'])
+@login_required
+def use_item():
+    """API để sử dụng một vật phẩm trong inventory"""
+    data = request.json
+    item_name = data.get('item_name')
+    question_id = data.get('question_id')
+    
+    if not item_name:
+        return jsonify({'success': False, 'message': 'Thiếu tên vật phẩm'})
+    
+    from models import InventoryItem
+    item = InventoryItem.query.filter_by(user_id=current_user.id, item_name=item_name).first()
+    
+    if not item or item.quantity <= 0:
+        return jsonify({'success': False, 'message': 'Bạn không có vật phẩm này'})
+    
+    # Xử lý logic sử dụng vật phẩm dựa trên loại
+    result = {'success': True, 'message': f'Đã sử dụng {item_name}'}
+    
+    # Logic xử lý các vật phẩm cụ thể
+    if item_name == "50/50":
+        # Logic loại bỏ 2 đáp án sai
+        result['eliminated_options'] = ['B', 'C']  # Ví dụ
+    elif item_name == "Skip Question":
+        # Logic bỏ qua câu hỏi
+        result['skip'] = True
+    
+    # Đánh dấu vật phẩm đã sử dụng (để theo dõi cho thành tựu)
+    item.is_used = True
+    
+    # Giảm số lượng
+    item.quantity -= 1
+    if item.quantity <= 0:
+        db.session.delete(item)
+    
+    db.session.commit()
+    
+    # Kiểm tra nếu có thành tựu mới
+    from achievement_manager import check_achievements
+    new_achievements = check_achievements(current_user.id)
+    
+    # Chuyển đổi thành tựu thành JSON
+    achievement_data = []
+    for achievement in new_achievements:
+        achievement_data.append({
+            'id': achievement.id,
+            'name': achievement.name,
+            'description': achievement.description,
+            'xp_reward': achievement.xp_reward,
+            'coin_reward': achievement.coin_reward,
+            'item_reward': achievement.item_reward,
+            'icon': achievement.icon
+        })
+    
+    result['new_achievements'] = achievement_data
+    
+    return jsonify(result)

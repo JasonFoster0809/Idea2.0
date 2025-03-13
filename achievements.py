@@ -460,6 +460,53 @@ ACHIEVEMENTS = [
         "coin_reward": 50,
         "item_reward": "Huy hiệu Tiên phong",
         "category": "special"
+    },
+    
+    # Thành tựu mới
+    {
+        "name": "1 năm bên nhau",
+        "description": "Đăng nhập ứng dụng trong vòng 365 ngày",
+        "icon": "one_year.png",
+        "xp_reward": 100,
+        "coin_reward": 200,
+        "item_reward": "Huy hiệu trái đất",
+        "category": "special"
+    },
+    {
+        "name": "Lựa chọn đúng đắn", 
+        "description": "Sử dụng skip question khi làm một câu hỏi mức độ khó",
+        "icon": "wise_choice.png",
+        "xp_reward": 20,
+        "coin_reward": 30,
+        "item_reward": None,
+        "category": "quiz"
+    },
+    {
+        "name": "Ơ kìa...",
+        "description": "Làm sai một câu hỏi dễ",
+        "icon": "surprised.png",
+        "xp_reward": 5,
+        "coin_reward": 10,
+        "item_reward": None,
+        "category": "quiz"
+    },
+    {
+        "name": "Học bá",
+        "description": "Làm đúng 10/10 câu ở tất cả môn học ở mức độ khó",
+        "icon": "scholar_pro.png",
+        "xp_reward": 200,
+        "coin_reward": 500,
+        "item_reward": "Huy hiệu mũ tốt nghiệp",
+        "category": "quiz"
+    },
+    {
+        "name": "Chắc chắn đúng",
+        "description": "Dùng 2 lần 50/50 trong cùng một câu hỏi",
+        "icon": "double_sure.png",
+        "xp_reward": 30,
+        "coin_reward": 40,
+        "item_reward": None,
+        "category": "quiz"
     }
 ]
 

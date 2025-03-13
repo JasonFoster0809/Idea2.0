@@ -2306,6 +2306,65 @@ function updateProgressBar(progressBar, value) {
     progressBar.querySelector('.progress-text').textContent = `Points: ${newPoints}%`;
 }
 
+// Function to check for new achievements
+function checkAchievements() {
+    // Chỉ kiểm tra nếu người dùng đã đăng nhập
+    if (!isUserLoggedIn()) return;
+    
+    fetch('/api/check-achievements')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.new_achievements.length > 0) {
+                showAchievementNotification(data.new_achievements);
+                // Cập nhật lại thông tin người dùng nếu có thay đổi XP hoặc Xu
+                updateUserInfo();
+            }
+        })
+        .catch(error => {
+            console.error('Error checking achievements:', error);
+        });
+}
+
+// Kiểm tra thành tựu khi tải trang
+document.addEventListener('DOMContentLoaded', function() {
+    // Kiểm tra thành tựu ngay khi tải trang
+    checkAchievements();
+    
+    // Kiểm tra định kỳ mỗi 5 phút
+    setInterval(checkAchievements, 300000);
+});
+
+// Function to check if user is logged in
+function isUserLoggedIn() {
+    // Kiểm tra qua element có class user-info hoặc tương tự
+    return document.querySelector('.user-profile') !== null;
+}
+
+// Function to update user information
+function updateUserInfo() {
+    // Tải lại trang hoặc thực hiện AJAX request để cập nhật thông tin
+    // Ví dụ đơn giản nhất là tải lại trang
+    // location.reload();
+    
+    // Hoặc thực hiện AJAX request để cập nhật thông tin cụ thể
+    fetch('/api/user-info')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Cập nhật thông tin người dùng trên giao diện
+                if (data.coins) {
+                    updateUserCoins(data.coins);
+                }
+                if (data.experience) {
+                    updateUserExperience(data.experience);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error updating user info:', error);
+        });
+}
+
 // Function to handle mobile animations
 function handleMobileAnimations() {
     if (window.innerWidth < 768) {
@@ -2777,9 +2836,35 @@ function showAchievementNotification(achievements) {
     
     // For each achievement, show a notification
     achievements.forEach(achievement => {
+        // Build rewards text
+        let rewardsText = '';
+        if (achievement.xp_reward) {
+            rewardsText += `+${achievement.xp_reward} XP `;
+        }
+        if (achievement.coin_reward) {
+            rewardsText += `+${achievement.coin_reward} Xu `;
+        }
+        if (achievement.item_reward) {
+            rewardsText += `+${achievement.item_reward} `;
+        }
+        
         Swal.fire({
             title: 'Thành tựu mới!',
-            text: achievement.name + ': ' + achievement.description,
+            html: `
+                <div class="achievement-notification">
+                    <h3>${achievement.name}</h3>
+                    <p>${achievement.description}</p>
+                    <div class="achievement-rewards">
+                        <span class="badge bg-success">${rewardsText}</span>
+                    </div>
+                </div>
+            `,
+            icon: 'success',
+            confirmButtonText: 'Tuyệt vời!',
+            timer: 5000,
+            timerProgressBar: true
+        });
+    });ext: achievement.name + ': ' + achievement.description,
             icon: 'success',
             timer: 4000,
             timerProgressBar: true,
