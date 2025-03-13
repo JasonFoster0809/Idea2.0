@@ -60,32 +60,60 @@ def check_achievement_conditions(user, achievement):
     """Kiểm tra điều kiện đạt thành tựu cụ thể"""
     achievement_name = achievement.name
     
-    # Kiểm tra các trường hợp đặc biệt trước
+    # ===== THÀNH TỰU CƠ BẢN =====
     
-    # Thành tựu "Người mới bắt đầu" - luôn trả về True để đảm bảo được cấp
+    # Thành tựu "Người mới bắt đầu" - luôn trả về True để đảm bảo được cấp cho tất cả người dùng
     if achievement_name == "Người mới bắt đầu":
         return True
     
-    # Thành tựu "1 năm bên nhau"
-    if achievement_name == "1 năm bên nhau":
-        # Đếm số ngày đăng nhập
-        # Đối với mục đích demo, ta có thể giả định rằng người dùng đã đạt được
+    # Thành tựu "Chào mừng trở lại"
+    if achievement_name == "Chào mừng trở lại":
+        # Đơn giản hóa: cho phép đạt được để demo
+        return True
+    
+    # Thành tựu "Người trung thành"
+    if achievement_name == "Người trung thành":
+        # Đối với mục đích demo
         if hasattr(user, 'daily_streak'):
-            return user.daily_streak >= 365
+            return user.daily_streak >= 30
+        # Cho phép đạt được cho demo
         return False
+    
+    # ===== THÀNH TỰU LIÊN QUAN ĐẾN KINH NGHIỆM/XU =====
+    
+    # Thành tựu "Ngôi sao mới nổi"
+    if achievement_name == "Ngôi sao mới nổi":
+        return user.experience >= 100
+    
+    # Thành tựu "Người giàu có"
+    if achievement_name == "Người giàu có":
+        return user.coins >= 500
+    
+    # Thành tựu "Triệu phú"
+    if achievement_name == "Triệu phú":
+        return user.coins >= 1000
+    
+    # ===== THÀNH TỰU LIÊN QUAN ĐẾN QUIZ =====
+    
+    # Thành tựu "Lần đầu làm quiz"
+    if achievement_name == "Lần đầu làm quiz":
+        # Kiểm tra tổng số câu hỏi đã trả lời
+        return user.total_questions_answered > 0
+    
+    # Thành tựu "Học sinh chăm chỉ"
+    if achievement_name == "Học sinh chăm chỉ":
+        # Kiểm tra tổng số câu hỏi đã trả lời
+        return user.total_questions_answered >= 10
     
     # Thành tựu "Lựa chọn đúng đắn"
     if achievement_name == "Lựa chọn đúng đắn":
         # Kiểm tra trong DB số lần sử dụng Skip Question
-        from models import InventoryItem, UserQuizHistory
+        from models import InventoryItem
         skips_used = InventoryItem.query.filter_by(
             user_id=user.id, 
             item_name="Skip Question",
             is_used=True
         ).count()
-        # Hoặc kiểm tra lịch sử quiz nếu có
-        if hasattr(user, 'has_skipped_hard_question'):
-            return user.has_skipped_hard_question
         return skips_used > 0
     
     # Thành tựu "Ơ kìa..."
@@ -93,46 +121,17 @@ def check_achievement_conditions(user, achievement):
         # Kiểm tra số câu sai trong câu hỏi dễ
         if hasattr(user, 'easy_questions_completed') and hasattr(user, 'easy_questions_correct'):
             return user.easy_questions_completed > 0 and user.easy_questions_correct < user.easy_questions_completed
-        # Nếu không có thông tin chi tiết, kiểm tra flag
-        if hasattr(user, 'has_failed_easy_question'):
-            return user.has_failed_easy_question
         return False
     
-    # Thành tựu "Học bá"
-    if achievement_name == "Học bá":
-        # Kiểm tra điểm số perfect trên các môn học
-        if hasattr(user, 'perfect_hard_quiz_count'):
-            return user.perfect_hard_quiz_count >= 1
-        # Kiểm tra tỷ lệ đúng/sai cho câu hỏi khó nếu có thông tin
-        if hasattr(user, 'hard_questions_completed') and hasattr(user, 'hard_questions_correct'):
-            return user.hard_questions_completed >= 10 and user.hard_questions_correct >= 10
-        return False
+    # ===== THÀNH TỰU LIÊN QUAN ĐẾN ĐÓNG GÓP =====
     
-    # Thành tựu "Chắc chắn đúng"
-    if achievement_name == "Chắc chắn đúng":
-        # Kiểm tra trong DB số lần sử dụng 50/50
-        from models import InventoryItem
-        fiftyfifty_used = InventoryItem.query.filter_by(
-            user_id=user.id, 
-            item_name="50/50", 
-            is_used=True
-        ).count()
-        # Hoặc kiểm tra flag
-        if hasattr(user, 'has_used_double_fiftyfifty'):
-            return user.has_used_double_fiftyfifty
-        return fiftyfifty_used >= 2
-    
-    # Các thành tựu khác có thể thêm vào tùy theo yêu cầu
-    # ...
-    
-    # Kiểm tra thành tựu dựa trên số liệu thống kê
-    
-    # Thành tựu liên quan đến đóng góp
+    # Thành tựu "Đóng góp đầu tiên"
     if achievement_name == "Đóng góp đầu tiên":
         from models import Contribution
         contribution_count = Contribution.query.filter_by(user_id=user.id).count()
         return contribution_count > 0
     
+    # Thành tựu "Người sáng tạo"
     if achievement_name == "Người sáng tạo":
         from models import Contribution
         approved_contributions = Contribution.query.filter_by(
@@ -141,24 +140,26 @@ def check_achievement_conditions(user, achievement):
         ).count()
         return approved_contributions >= 5
     
-    # Thành tựu liên quan đến quiz
-    if achievement_name == "Lần đầu làm quiz":
-        if hasattr(user, 'total_quizzes'):
-            return user.total_quizzes > 0
+    # ===== THÀNH TỰU ĐẶC BIỆT =====
+    
+    # Thành tựu "1 năm bên nhau"
+    if achievement_name == "1 năm bên nhau":
+        # Đối với mục đích demo, ta có thể giả định rằng người dùng đã đạt được
+        if hasattr(user, 'daily_streak'):
+            return user.daily_streak >= 365
         return False
     
-    if achievement_name == "Học sinh chăm chỉ":
-        if hasattr(user, 'total_quizzes'):
-            return user.total_quizzes >= 10
-        return False
+    # Thành tựu "Chắc chắn đúng"
+    if achievement_name == "Chắc chắn đúng":
+        from models import InventoryItem
+        fiftyfifty_used = InventoryItem.query.filter_by(
+            user_id=user.id, 
+            item_name="50/50", 
+            is_used=True
+        ).count()
+        return fiftyfifty_used >= 2
     
-    # Thành tựu liên quan đến kinh nghiệm/xu
-    if achievement_name == "Ngôi sao mới nổi":
-        return user.experience >= 100
-    
-    if achievement_name == "Người giàu có":
-        return user.coins >= 500
-    
+    # Mặc định: không đạt được thành tựu
     return False
 
 def award_achievement(user, achievement):

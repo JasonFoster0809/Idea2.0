@@ -565,9 +565,14 @@ function checkNewAchievements() {
       .then(response => response.json())
       .then(data => {
         if (data.success && data.new_achievements && data.new_achievements.length > 0) {
-          data.new_achievements.forEach(achievement => {
-            showAchievementNotification(achievement);
+          data.new_achievements.forEach((achievement, index) => {
+            setTimeout(() => {
+              showAchievementNotification(achievement);
+            }, index * 3000); // Show each achievement 3 seconds apart
           });
+          setTimeout(() => {
+            window.location.reload();
+          }, (data.new_achievements.length * 3000) + 2000); //refresh after all notifications
         }
       })
       .catch(error => console.error('Error checking achievements:', error));
@@ -577,12 +582,13 @@ function checkNewAchievements() {
 // Show achievement notification
 function showAchievementNotification(achievement) {
   const notificationHtml = `
-    <div class="achievement-notification">
-      <div class="achievement-icon">
+    <div class="achievement-toast">
+      <div class="achievement-toast-icon">
         <i class="fas fa-trophy"></i>
       </div>
-      <div class="achievement-details">
-        <h4>${achievement.name}</h4>
+      <div class="achievement-toast-content">
+        <h5>Thành tựu mới!</h5>
+        <p><strong>${achievement.name}</strong></p>
         <p>${achievement.description}</p>
         <div class="achievement-rewards">
           ${achievement.xp_reward > 0 ? `<span class="badge bg-primary">+${achievement.xp_reward} XP</span>` : ''}
@@ -597,6 +603,11 @@ function showAchievementNotification(achievement) {
   notification.className = 'achievement-toast';
   notification.innerHTML = notificationHtml;
   document.body.appendChild(notification);
+
+  // Play sound effect if available
+  const sound = new Audio('/static/sounds/achievement.mp3');
+  sound.volume = 0.5;
+  sound.play().catch(e => console.log('Sound could not be played'));
 
   // Show with animation
   setTimeout(() => {
@@ -926,7 +937,7 @@ function finishQuiz() {
       }
 
       if (data.milestone_rewards > 0) {
-        showToast(`Received ${data.milestone_rewards} coins from milestone rewards!`, 'success');
+        showToast(`Received ${data.milestone_rewards} coins from milestonerewards!`, 'success');
       }
 
       // Update user stats in the UI
@@ -1309,7 +1320,7 @@ function setupAdvancements() {
       // Tự động thêm achieved cho thành tựu "Người mới bắt đầu"
       if (achievementName === "Người mới bắt đầu") {
         card.classList.add('achieved');
-        
+
         // Thêm badge "Đã nhận"
         const rewardsDiv = card.querySelector('.achievement-rewards');
         if (rewardsDiv && !rewardsDiv.querySelector('.reward-status')) {
@@ -1328,7 +1339,7 @@ function setupAdvancements() {
     // Highlight thành tựu đã đạt được
     card.style.transform = 'translateY(-3px)';
     card.style.boxShadow = '0 5px 15px rgba(78, 115, 223, 0.15)';
-    
+
     // Thêm icon hoàn thành
     const iconElement = card.querySelector('.achievement-icon');
     if (iconElement) {
@@ -2709,8 +2720,7 @@ function updateQuestUI() {
 function updateUserStats(data) {
     if (data.new_xp !== undefined) document.querySelectorAll('.user-xp').forEach(el => el.textContent = data.new_xp);
     if (data.new_coins !== undefined) document.querySelectorAll('.user-coins').forEach(el => el.textContent = data.new_coins);
-    if (data.daily_points !== undefined) {
-        document.querySelectorAll('.daily-quest-points').forEach(el => el.textContent = data.daily_points);
+    if (data.daily_points !== undefined) {        document.querySelectorAll('.daily-quest-points').forEach(el => el.textContent = data.daily_points);
         const progressBar = document.querySelector('.progress-bar[aria-valuenow]');
         if (progressBar) {
             progressBar.style.width = `${(data.daily_points / 100) * 100}%`;
@@ -2759,6 +2769,86 @@ function showToast(message, type = 'info', duration = 3000) {
 }
 
 
+// Achievement management
+document.addEventListener('DOMContentLoaded', function() {
+    // Xử lý lọc thành tựu
+    const filterButtons = document.querySelectorAll('.achievement-filter .btn');
+    const achievementCards = document.querySelectorAll('.achievement-card');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Đổi trạng thái active
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            const filter = this.getAttribute('data-filter');
+
+            // Lọc thành tựu
+            achievementCards.forEach(card => {
+                if (filter === 'all') {
+                    card.style.display = 'flex';
+                } else if (filter === 'achieved' && card.classList.contains('achieved')) {
+                    card.style.display = 'flex';
+                } else if (filter === 'unachieved' && !card.classList.contains('achieved')) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Kiểm tra thành tựu mới khi trang tải
+    checkNewAchievements();
+});
+
+// Hàm kiểm tra thành tựu mới 
+function checkNewAchievements() {
+    fetch('/check-achievements')
+        .then(response => response.json())
+        .then(data => {
+            if (data.new_achievements && data.new_achievements.length > 0) {
+                showAchievementNotification(data.new_achievements);
+            }
+        })
+        .catch(error => console.error('Error checking achievements:', error));
+}
+
+// Hiển thị thông báo thành tựu mới
+function showAchievementNotification(achievements) {
+    achievements.forEach(achievement => {
+        const notification = document.createElement('div');
+        notification.className = 'achievement-notification';
+        notification.innerHTML = `
+            <div class="achievement-notification-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="achievement-notification-content">
+                <h4>Thành tựu mới!</h4>
+                <p>${achievement.name}</p>
+                <div class="achievement-notification-rewards">
+                    ${achievement.xp_reward > 0 ? `<span class="badge bg-primary"><i class="fas fa-star"></i> +${achievement.xp_reward} XP</span>` : ''}
+                    ${achievement.coin_reward > 0 ? `<span class="badge bg-warning text-dark"><i class="fas fa-coins"></i> +${achievement.coin_reward} Xu</span>` : ''}
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Animation để hiển thị thông báo
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+
+        // Ẩn thông báo sau 5 giây
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 500);
+        }, 5000);
+    });
+}
 // Function to update user balance display
 function updateBalanceDisplay() {
     const coinDisplay = document.getElementById('user-coins');
@@ -2779,260 +2869,6 @@ function updateBalanceDisplay() {
 // Function to track page visits for Explorer achievement
 // Using the global visitedPages
 
-function trackPageVisit() {
-    const currentPath = window.location.pathname;
-    window.visitedPages.add(currentPath);
-    localStorage.setItem('visitedPages', JSON.stringify(Array.from(window.visitedPages)));
-    checkExplorerAchievement();
-}
-
-// Function to check for Explorer achievement
-function checkExplorerAchievement() {
-    const mainPages = ['/homepage', '/mainquiz', '/contribute', '/shop', '/inventory', '/advancements', '/daily-quests', '/event'];
-    const storedPages = JSON.parse(localStorage.getItem('visitedPages') || '[]');
-    window.visitedPages = new Set([...storedPages, window.location.pathname]);
-    let visitedCount = 0;
-    for (const page of mainPages) {
-        if (visitedPages.has(page)) visitedCount++;
-    }
-    if (visitedCount >= 3) {
-        fetch('/api/complete-explorer-achievement', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({})
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.achieved) {
-                    showToast(`🏆 Achievement unlocked: Explorer! Received ${data.reward_coins} coins and ${data.reward_xp} XP`, 'success', 5000);
-                    updateBalanceDisplay();
-                }
-            })
-            .catch(error => console.error('Error receiving achievement:', error));
-    }
-}
-
-// Function to setup quiz functionality
-function setupQuiz() {
-    const quizModal = document.getElementById('quizModal');
-    if (quizModal) {
-        const modal = new bootstrap.Modal(quizModal);
-    }
-}
-
-// Function to start quiz
-function startQuiz(subject, difficulty) {
-    const entranceFees = { 'easy': 10, 'medium': 25, 'hard': 50 };
-    const rewards = { 'easy': 5, 'medium': 10, 'hard': 15 };
-    if (confirm(`Start ${difficulty} ${subject} quiz? Entry fee: ${entranceFees[difficulty]} coins`)) {
-        loadQuestions(subject, difficulty);
-    }
-}
-
-// Variables for quiz management
-let currentQuestions = [];
-let currentQuestionIndex = 0;
-let score = 0;
-
-// Function to load questions
-async function loadQuestions(subject, difficulty) {
-    try {
-        showLoadingSpinner();
-        const response = await fetch(`/api/questions?subject=${subject}&difficulty=${difficulty}`);
-        const questions = await response.json();
-        currentQuestions = questions;
-        currentQuestionIndex = 0;
-        score = 0;
-        showQuestion();
-        hideLoadingSpinner();
-    } catch (error) {
-        console.error('Error loading questions:', error);
-        hideLoadingSpinner();
-        showError('Failed to load questions. Please try again.');
-    }
-}
-
-// Function to show question
-function showQuestion() {
-    const questionContainer = document.getElementById('questionContainer');
-    const question = currentQuestions[currentQuestionIndex];
-    if (!question) {
-        endQuiz();
-        return;
-    }
-    const optionsHtml = ['A', 'B', 'C', 'D'].map(letter => `
-        <button class="option-button option-item" onclick="selectAnswer('${letter}')">
-            ${letter}. ${question['option_' + letter.toLowerCase()]}
-        </button>
-    `).join('');
-    questionContainer.innerHTML = `
-        <h4 class="mb-4">${question.question_text}</h4>
-        <div class="options-container">${optionsHtml}</div>
-    `;
-}
-
-// Function to handle answer selection
-function selectAnswer(answer) {
-    const question = currentQuestions[currentQuestionIndex];
-    const isCorrect = answer === question.correct_answer;
-    const buttons = document.querySelectorAll('.option-button');
-    buttons.forEach(button => {
-        button.disabled = true;
-        if (button.textContent.startsWith(answer)) button.classList.add(isCorrect ? 'btn-success' : 'btn-danger');
-        if (button.textContent.startsWith(question.correct_answer)) button.classList.add('btn-success');
-    });
-    if (isCorrect) score++;
-    setTimeout(() => {
-        currentQuestionIndex++;
-        showQuestion();
-    }, 1500);
-}
-
-// Function to end quiz
-function endQuiz() {
-    const modal = bootstrap.Modal.getInstance(document.getElementById('quizModal'));
-    modal.hide();
-    showResult();
-}
-
-// Function to show results
-function showResult() {
-    const totalQuestions = currentQuestions.length;
-    const percentage = (score / totalQuestions) * 100;
-    Swal.fire({
-        title: 'Quiz Complete!',
-        html: `
-            <p>You scored ${score} out of ${totalQuestions}</p>
-            <p>Percentage: ${percentage.toFixed(1)}%</p>
-        `,
-        icon: percentage >= 70 ? 'success' : 'info',
-        confirmButtonText: 'OK'
-    });
-}
-
-// Function to show loading spinner
-function showLoadingSpinner() {
-    const spinner = document.createElement('div');
-    spinner.className = 'loading-spinner';
-    document.body.appendChild(spinner);
-}
-
-// Function to hide loading spinner
-function hideLoadingSpinner() {
-    const spinner = document.querySelector('.loading-spinner');
-    if (spinner) spinner.remove();
-}
-
-// Function to show error
-function showError(message) {
-    Swal.fire({
-        title: 'Error',
-        text: message,
-        icon: 'error',
-        confirmButtonText: 'OK'
-    });
-}
-
-// Function to handle item purchase
-function purchaseItem(itemName, cost) {
-    Swal.fire({
-        title: 'Confirm Purchase',
-        text: `Do you want to purchase ${itemName} for ${cost} coins?`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Yes',
-        cancelButtonText: 'No'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            fetch('/api/purchase', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ item: itemName, cost: cost })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire('Success', 'Item purchased successfully!', 'success');
-                        updateUserCoins(data.newBalance);
-                    } else {
-                        Swal.fire('Error', data.message || 'Purchase failed', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Purchase error:', error);
-                    Swal.fire('Error', 'Failed to process purchase', 'error');
-                });
-        }
-    });
-}
-
-// Function to show alert using SweetAlert2
-function showAlert3(message, type) {
-    const icon = type === 'error' ? 'error' : 'success';
-    Swal.fire({
-        title: type === 'error' ? 'Error!' : 'Success!',
-        text: message,
-        icon: icon,
-        timer: 3000,
-        timerProgressBar: true,
-        showConfirmButton: false
-    });
-}
-
-// Function to show achievement notification
-function showAchievementNotification(achievements) {
-    if (!achievements || achievements.length === 0) return;
-
-    // For each achievement, show a notification
-    achievements.forEach(achievement => {
-        // Build rewards text
-        let rewardsText = '';
-        if (achievement.xp_reward) {
-            rewardsText += `+${achievement.xp_reward} XP `;
-        }
-        if (achievement.coin_reward) {
-            rewardsText += `+${achievement.coin_reward} Xu `;
-        }
-        if (achievement.item_reward) {
-            rewardsText += `+${achievement.item_reward} `;
-        }
-
-        Swal.fire({
-            title: 'Thành tựu mới!',
-            html: `
-                <div class="achievement-notification">
-                    <h3>${achievement.name}</h3>
-                    <p>${achievement.description}</p>
-                    <div class="achievement-rewards">
-                        <span class="badge bg-success">${rewardsText}</span>
-                    </div>
-                </div>
-            `,
-            icon: 'success',
-            confirmButtonText: 'Tuyệt vời!',
-            timer: 5000,
-            timerProgressBar: true
-        });
-    });ext: achievement.name + ': ' + achievement.description,
-            icon: 'success',
-            timer: 4000,
-            timerProgressBar: true,
-            showConfirmButton: false
-        });
-    });
-}
-
-// Function to update user coins
-function updateUserCoins(newBalance) {
-    const coinsElement = document.querySelector('.nav-link:contains("🪙")');
-    if (coinsElement) coinsElement.textContent = `🪙 ${newBalance}`;
-}
-
-// DOMContentLoaded event listener
-// Initialize visited pages tracking
-var visitedPages = new Set();
-
-// Function to track page visits
 function trackPageVisit() {
     const currentPath = window.location.pathname;
     visitedPages.add(currentPath);

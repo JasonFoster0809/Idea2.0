@@ -214,6 +214,48 @@ def check_user_achievements():
             'item_reward': achievement.item_reward,
             'icon': achievement.icon
         })
+    
+    # Nếu không có thành tựu mới, cấp thành tựu "Người mới bắt đầu" nếu chưa có
+    if not achievement_data:
+        from models import Achievement, UserAchievement
+        
+        # Kiểm tra xem người dùng đã có thành tựu "Người mới bắt đầu" chưa
+        starter_achievement = Achievement.query.filter_by(name="Người mới bắt đầu").first()
+        if starter_achievement:
+            existing = UserAchievement.query.filter_by(
+                user_id=current_user.id,
+                achievement_id=starter_achievement.id
+            ).first()
+            
+            if not existing:
+                # Cấp thành tựu "Người mới bắt đầu"
+                user_achievement = UserAchievement(
+                    user_id=current_user.id,
+                    achievement_id=starter_achievement.id,
+                    acquired_date=datetime.utcnow(),
+                    notified=False
+                )
+                
+                # Thêm phần thưởng
+                if starter_achievement.xp_reward:
+                    current_user.add_experience(starter_achievement.xp_reward)
+                
+                if starter_achievement.coin_reward:
+                    current_user.add_coins(starter_achievement.coin_reward)
+                
+                db.session.add(user_achievement)
+                db.session.commit()
+                
+                # Thêm vào danh sách thành tựu mới
+                achievement_data.append({
+                    'id': starter_achievement.id,
+                    'name': starter_achievement.name,
+                    'description': starter_achievement.description,
+                    'xp_reward': starter_achievement.xp_reward,
+                    'coin_reward': starter_achievement.coin_reward,
+                    'item_reward': starter_achievement.item_reward,
+                    'icon': starter_achievement.icon
+                })
 
     return jsonify({
         'new_achievements': achievement_data,
