@@ -60,54 +60,104 @@ def check_achievement_conditions(user, achievement):
     """Kiểm tra điều kiện đạt thành tựu cụ thể"""
     achievement_name = achievement.name
     
+    # Kiểm tra các trường hợp đặc biệt trước
+    
+    # Thành tựu "Người mới bắt đầu" - luôn được cấp khi đăng ký
+    if achievement_name == "Người mới bắt đầu":
+        return True
+    
     # Thành tựu "1 năm bên nhau"
     if achievement_name == "1 năm bên nhau":
         # Đếm số ngày đăng nhập
-        # Trong thực tế, cần lưu lịch sử đăng nhập, nhưng ở đây giả định qua daily_streak
-        return user.daily_streak >= 365
+        # Đối với mục đích demo, ta có thể giả định rằng người dùng đã đạt được
+        if hasattr(user, 'daily_streak'):
+            return user.daily_streak >= 365
+        return False
     
     # Thành tựu "Lựa chọn đúng đắn"
     if achievement_name == "Lựa chọn đúng đắn":
-        # Kiểm tra trong DB hoặc thông qua session
-        # Giả định thông qua một trường trong Use
-        from models import InventoryItem
+        # Kiểm tra trong DB số lần sử dụng Skip Question
+        from models import InventoryItem, UserQuizHistory
         skips_used = InventoryItem.query.filter_by(
             user_id=user.id, 
             item_name="Skip Question",
             is_used=True
         ).count()
+        # Hoặc kiểm tra lịch sử quiz nếu có
+        if hasattr(user, 'has_skipped_hard_question'):
+            return user.has_skipped_hard_question
         return skips_used > 0
     
     # Thành tựu "Ơ kìa..."
     if achievement_name == "Ơ kìa...":
         # Kiểm tra số câu sai trong câu hỏi dễ
-        # Cần theo dõi trong quá trình làm quiz
-        total_easy = user.easy_questions_completed
-        correct_easy = total_easy - (total_easy * 0.2)  # Giả định 20% là đúng
-        return total_easy > 0 and correct_easy < total_easy
+        if hasattr(user, 'easy_questions_completed') and hasattr(user, 'easy_questions_correct'):
+            return user.easy_questions_completed > 0 and user.easy_questions_correct < user.easy_questions_completed
+        # Nếu không có thông tin chi tiết, kiểm tra flag
+        if hasattr(user, 'has_failed_easy_question'):
+            return user.has_failed_easy_question
+        return False
     
     # Thành tựu "Học bá"
     if achievement_name == "Học bá":
         # Kiểm tra điểm số perfect trên các môn học
-        # Cần lưu lịch sử làm bài chi tiết
-        perfect_score_count = 0
-        # Trong thực tế, kiểm tra từ bảng lưu lịch sử quiz
-        # Nhưng ở đây, ta giả định thông qua tỷ lệ đúng/tổng số câu khó
-        if user.hard_questions_completed >= 50 and user.correct_answers / user.total_questions_answered > 0.9:
-            perfect_score_count = 1  # Giả định đạt yêu cầu
-        return perfect_score_count >= 1
+        if hasattr(user, 'perfect_hard_quiz_count'):
+            return user.perfect_hard_quiz_count >= 1
+        # Kiểm tra tỷ lệ đúng/sai cho câu hỏi khó nếu có thông tin
+        if hasattr(user, 'hard_questions_completed') and hasattr(user, 'hard_questions_correct'):
+            return user.hard_questions_completed >= 10 and user.hard_questions_correct >= 10
+        return False
     
     # Thành tựu "Chắc chắn đúng"
     if achievement_name == "Chắc chắn đúng":
-        # Kiểm tra trong session hoặc lưu lịch sử sử dụng item
-        # Giả định qua trường trong User
+        # Kiểm tra trong DB số lần sử dụng 50/50
         from models import InventoryItem
-        double_5050_used = InventoryItem.query.filter_by(
+        fiftyfifty_used = InventoryItem.query.filter_by(
             user_id=user.id, 
             item_name="50/50", 
             is_used=True
         ).count()
-        return double_5050_used >= 2
+        # Hoặc kiểm tra flag
+        if hasattr(user, 'has_used_double_fiftyfifty'):
+            return user.has_used_double_fiftyfifty
+        return fiftyfifty_used >= 2
+    
+    # Các thành tựu khác có thể thêm vào tùy theo yêu cầu
+    # ...
+    
+    # Kiểm tra thành tựu dựa trên số liệu thống kê
+    
+    # Thành tựu liên quan đến đóng góp
+    if achievement_name == "Đóng góp đầu tiên":
+        from models import Contribution
+        contribution_count = Contribution.query.filter_by(user_id=user.id).count()
+        return contribution_count > 0
+    
+    if achievement_name == "Người sáng tạo":
+        from models import Contribution
+        approved_contributions = Contribution.query.filter_by(
+            user_id=user.id, 
+            approved=True
+        ).count()
+        return approved_contributions >= 5
+    
+    # Thành tựu liên quan đến quiz
+    if achievement_name == "Lần đầu làm quiz":
+        if hasattr(user, 'total_quizzes'):
+            return user.total_quizzes > 0
+        return False
+    
+    if achievement_name == "Học sinh chăm chỉ":
+        if hasattr(user, 'total_quizzes'):
+            return user.total_quizzes >= 10
+        return False
+    
+    # Thành tựu liên quan đến kinh nghiệm/xu
+    if achievement_name == "Ngôi sao mới nổi":
+        return user.experience >= 100
+    
+    if achievement_name == "Người giàu có":
+        return user.coins >= 500
     
     return False
 

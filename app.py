@@ -299,7 +299,25 @@ def inventory():
 @login_required
 def advancements():
     from achievements import get_achievements_by_category
+    from models import UserAchievement, Achievement
+    
+    # Lấy danh sách thành tựu theo danh mục
     achievements = get_achievements_by_category()
+    
+    # Lấy danh sách ID thành tựu đã đạt được của người dùng
+    user_achievements = UserAchievement.query.filter_by(user_id=current_user.id).all()
+    achieved_ids = [ua.achievement_id for ua in user_achievements]
+    
+    # Đánh dấu thành tựu đã đạt được
+    for category in achievements:
+        for achievement in achievements[category]:
+            # Tìm ID của thành tựu trong cơ sở dữ liệu
+            db_achievement = Achievement.query.filter_by(name=achievement['name']).first()
+            if db_achievement and db_achievement.id in achieved_ids:
+                achievement['achieved'] = True
+            else:
+                achievement['achieved'] = False
+    
     return render_template('advancements.html', achievements=achievements)
 
 @app.route('/daily_quests')

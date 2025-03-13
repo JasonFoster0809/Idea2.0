@@ -1210,8 +1210,26 @@ function setupAdvancements() {
   const achievementsContainer = document.querySelector('#achievementTabs');
   if (!achievementsContainer) return;
 
+  // Thêm hiệu ứng cho các thành tựu đã đạt được
+  const achievedCards = document.querySelectorAll('.achievement-card.achieved');
+  achievedCards.forEach(card => {
+    // Thêm icon hoàn thành
+    const iconElement = card.querySelector('.achievement-icon');
+    if (iconElement) {
+      const completedIcon = document.createElement('i');
+      completedIcon.className = 'fas fa-check-circle achievement-completed-icon';
+      iconElement.appendChild(completedIcon);
+    }
+    
+    // Thêm badge "Đã đạt được"
+    const badgeElement = document.createElement('div');
+    badgeElement.className = 'achievement-badge';
+    badgeElement.textContent = 'Đã đạt được';
+    card.appendChild(badgeElement);
+  });
+
   // Add filter functionality
-  const filterButtons = document.querySelectorAll('.achievement-filter button');
+  const filterButtons = document.querySelectorAll('.achievement-filter .btn');
   if (filterButtons.length > 0) {
     filterButtons.forEach(button => {
       button.addEventListener('click', function() {
@@ -1232,6 +1250,10 @@ function setupAdvancements() {
           } else {
             card.closest('.col-md-4').style.display = 'none';
           }
+        });
+      });
+    });
+  }
         });
       });
     });

@@ -99,6 +99,62 @@
 
 .achievement-card.achieved .achievement-default-icon {
     color: white;
+
+/* Styling for completed achievements */
+.achievement-card.achieved {
+    background: linear-gradient(135deg, rgba(255,255,255,0.8) 0%, rgba(240,249,255,0.9) 100%);
+    border: 2px solid #4caf50;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2);
+    transform: translateY(-3px);
+}
+
+.achievement-card.achieved .achievement-icon {
+    background: linear-gradient(135deg, #4caf50, #8bc34a);
+}
+
+.achievement-completed-icon {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    color: #4caf50;
+    font-size: 1.2rem;
+    background: white;
+    border-radius: 50%;
+    padding: 2px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.achievement-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #4caf50;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    transform: rotate(5deg);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Thêm hiệu ứng cho thành tựu chưa đạt được */
+.achievement-card:not(.achieved) {
+    filter: grayscale(0.7);
+    opacity: 0.7;
+}
+
+.achievement-card:not(.achieved):hover {
+    filter: grayscale(0.3);
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+/* Hiệu ứng khi hover lên thành tựu đã đạt được */
+.achievement-card.achieved:hover {
+    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+}
+
 }
 
 .achievement-card h5 {
