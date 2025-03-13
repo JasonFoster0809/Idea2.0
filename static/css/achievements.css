@@ -230,12 +230,32 @@
 .achievement-card:not(.achieved) {
     filter: grayscale(0.7);
     opacity: 0.7;
+    background: #f8f9fa;
+    border-left: 4px solid #e9ecef;
 }
 
 .achievement-card:not(.achieved):hover {
     filter: grayscale(0.3);
     opacity: 0.9;
     transform: translateY(-2px);
+}
+
+.achievement-card.achieved {
+    filter: grayscale(0);
+    opacity: 1;
+    background: linear-gradient(135deg, #f0f7ff, #e4f1ff);
+    border-left: 4px solid #4facfe;
+    box-shadow: 0 4px 8px rgba(79, 172, 254, 0.2);
+    transform: translateY(-2px);
+}
+
+.achievement-card.achieved .achievement-icon {
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    color: white;
+}
+
+.achievement-card.achieved .achievement-default-icon {
+    color: white;
 }
 
 /* Hiệu ứng khi hover lên thành tựu đã đạt được */
