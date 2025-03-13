@@ -1303,11 +1303,21 @@ function setupAdvancements() {
   allCards.forEach(card => {
     const title = card.querySelector('h5');
     if (title && title.textContent) {
-      card.setAttribute('data-achievement-name', title.textContent.trim());
+      const achievementName = title.textContent.trim();
+      card.setAttribute('data-achievement-name', achievementName);
 
       // Tự động thêm achieved cho thành tựu "Người mới bắt đầu"
-      if (title.textContent.trim() === "Người mới bắt đầu") {
+      if (achievementName === "Người mới bắt đầu") {
         card.classList.add('achieved');
+        
+        // Thêm badge "Đã nhận"
+        const rewardsDiv = card.querySelector('.achievement-rewards');
+        if (rewardsDiv && !rewardsDiv.querySelector('.reward-status')) {
+          const rewardStatus = document.createElement('div');
+          rewardStatus.className = 'reward-status mb-2';
+          rewardStatus.innerHTML = '<span class="badge bg-success"><i class="fas fa-check-circle"></i> Đã nhận</span>';
+          rewardsDiv.prepend(rewardStatus);
+        }
       }
     }
   });
@@ -1315,11 +1325,21 @@ function setupAdvancements() {
   // Thêm hiệu ứng cho các thành tựu đã đạt được
   const achievedCards = document.querySelectorAll('.achievement-card.achieved');
   achievedCards.forEach(card => {
+    // Highlight thành tựu đã đạt được
+    card.style.transform = 'translateY(-3px)';
+    card.style.boxShadow = '0 5px 15px rgba(78, 115, 223, 0.15)';
+    
     // Thêm icon hoàn thành
     const iconElement = card.querySelector('.achievement-icon');
     if (iconElement) {
-      const completedIcon = document.createElement('i');
-      completedIcon.className = 'fas fa-check-circle achievement-completed-icon';
+      if (!iconElement.querySelector('.achievement-completed-icon')) {
+        const completedIcon = document.createElement('i');
+        completedIcon.className = 'fas fa-check-circle achievement-completed-icon';
+        iconElement.appendChild(completedIcon);
+      }
+    }
+  });
+}ompletedIcon.className = 'fas fa-check-circle achievement-completed-icon';
       iconElement.appendChild(completedIcon);
     }
 

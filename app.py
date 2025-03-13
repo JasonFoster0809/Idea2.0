@@ -102,9 +102,29 @@ def register_post():
     from models import Achievement, UserAchievement
     achievement = Achievement.query.filter_by(name="Người mới bắt đầu").first()
     if achievement:
-        user_achievement = UserAchievement(user_id=new_user.id, achievement_id=achievement.id)
-        db.session.add(user_achievement)
-        db.session.commit()
+        # Kiểm tra xem đã có thành tựu này chưa
+        existing = UserAchievement.query.filter_by(
+            user_id=new_user.id,
+            achievement_id=achievement.id
+        ).first()
+        
+        if not existing:
+            user_achievement = UserAchievement(
+                user_id=new_user.id, 
+                achievement_id=achievement.id,
+                acquired_date=datetime.utcnow(),
+                notified=True
+            )
+            
+            # Thêm phần thưởng
+            if achievement.xp_reward:
+                new_user.add_experience(achievement.xp_reward)
+            
+            if achievement.coin_reward:
+                new_user.add_coins(achievement.coin_reward)
+                
+            db.session.add(user_achievement)
+            db.session.commit()
 
     flash('Registration successful! Please log in.')
     return redirect(url_for('login'))
@@ -120,6 +140,33 @@ def login_post():
     if not user or not check_password_hash(user.password_hash, password):
         flash('Please check your login details and try again.')
         return redirect(url_for('login'))
+
+    # Đảm bảo người dùng có thành tựu "Người mới bắt đầu"
+    from models import Achievement, UserAchievement
+    achievement = Achievement.query.filter_by(name="Người mới bắt đầu").first()
+    if achievement:
+        existing = UserAchievement.query.filter_by(
+            user_id=user.id,
+            achievement_id=achievement.id
+        ).first()
+        
+        if not existing:
+            user_achievement = UserAchievement(
+                user_id=user.id, 
+                achievement_id=achievement.id,
+                acquired_date=datetime.utcnow(),
+                notified=True
+            )
+            
+            # Thêm phần thưởng
+            if achievement.xp_reward:
+                user.add_experience(achievement.xp_reward)
+            
+            if achievement.coin_reward:
+                user.add_coins(achievement.coin_reward)
+                
+            db.session.add(user_achievement)
+            db.session.commit()
 
     login_user(user)
     return redirect(url_for('homepage'))
