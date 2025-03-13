@@ -64,7 +64,7 @@ def check_achievement_conditions(user, achievement):
     
     # Thành tựu "Người mới bắt đầu" - luôn trả về True để đảm bảo được cấp cho tất cả người dùng
     if achievement_name == "Người mới bắt đầu":
-        return True
+        return True  # Always grant this achievement to all users
     
     # Thành tựu "Chào mừng trở lại"
     if achievement_name == "Chào mừng trở lại":
@@ -174,6 +174,7 @@ def award_achievement(user, achievement):
     ).first()
     
     if existing:
+        # Already has the achievement, no need to award it again
         return False
     
     # Tạo thành tựu mới

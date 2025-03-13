@@ -1309,7 +1309,10 @@ function setupAdvancements() {
   const achievementsContainer = document.querySelector('#achievementTabs');
   if (!achievementsContainer) return;
 
-  // Đánh dấu thành tựu "Người mới bắt đầu" có thuộc tính đặc biệt
+  // Check for new achievements via API
+  checkForNewAchievements();
+
+  // Process all achievement cards
   const allCards = document.querySelectorAll('.achievement-card');
   allCards.forEach(card => {
     const title = card.querySelector('h5');
@@ -1317,17 +1320,52 @@ function setupAdvancements() {
       const achievementName = title.textContent.trim();
       card.setAttribute('data-achievement-name', achievementName);
 
-      // Tự động thêm achieved cho thành tựu "Người mới bắt đầu"
+      // Apply visual effects for cards that are marked as achieved in the HTML
+      if (card.classList.contains('achieved')) {
+        applyAchievedStyles(card);
+      }
+      
+      // Ensure "Người mới bắt đầu" is always achieved and styled properly
       if (achievementName === "Người mới bắt đầu") {
         card.classList.add('achieved');
+        applyAchievedStyles(card);
+      }
+    }
+  });
+}
 
-        // Thêm badge "Đã nhận"
-        const rewardsDiv = card.querySelector('.achievement-rewards');
-        if (rewardsDiv && !rewardsDiv.querySelector('.reward-status')) {
-          const rewardStatus = document.createElement('div');
-          rewardStatus.className = 'reward-status mb-2';
-          rewardStatus.innerHTML = '<span class="badge bg-success"><i class="fas fa-check-circle"></i> Đã nhận</span>';
-          rewardsDiv.prepend(rewardStatus);
+function applyAchievedStyles(card) {
+  // Apply visual styles to achieved cards
+  card.style.opacity = '1';
+  card.style.filter = 'grayscale(0)';
+  
+  // Add badge "Đã nhận" if not already present
+  const rewardsDiv = card.querySelector('.achievement-rewards');
+  if (rewardsDiv && !rewardsDiv.querySelector('.reward-status')) {
+    const rewardStatus = document.createElement('div');
+    rewardStatus.className = 'reward-status mb-2';
+    rewardStatus.innerHTML = '<span class="badge bg-success"><i class="fas fa-check-circle"></i> Đã nhận</span>';
+    rewardsDiv.prepend(rewardStatus);
+  }
+}
+
+function checkForNewAchievements() {
+  // Make a request to check for new achievements
+  fetch('/api/check-achievements')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success && data.new_achievements && data.new_achievements.length > 0) {
+        // Process new achievements
+        data.new_achievements.forEach(achievement => {
+          const card = document.querySelector(`[data-achievement-name="${achievement.name}"]`);
+          if (card) {
+            card.classList.add('achieved');
+            applyAchievedStyles(card);
+          }
+        });
+      }
+    })
+    .catch(error => console.error('Error checking achievements:', error));
         }
       }
     }
