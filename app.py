@@ -907,7 +907,7 @@ def grant_starter_achievement():
                 user_id=user.id,
                 achievement_id=achievement.id,
                 acquired_date=datetime.utcnow(),
-                notified=False
+                notified=True  # Đánh dấu là đã thông báo
             )
 
             # Thêm phần thưởng
@@ -924,7 +924,7 @@ def grant_starter_achievement():
 
     return jsonify({
         'success': True,
-        'message': f'Đã cấp thành tựu "Người mới bắt đầu" cho {count} người dùng mới'
+        'message': f'Đã cấp thành tựu "Người mới bắt đầu" cho {count} người dùng'
     })
 
 @app.route('/achievements')

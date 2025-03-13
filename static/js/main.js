@@ -1266,8 +1266,22 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
           if (data.success) {
             showToast(data.message, 'success');
+            // Reload trang sau 2 giây để hiển thị thành tựu mới
+            setTimeout(function() {
+              window.location.reload();
+            }, 2000);
           } else {
-            showToast(data.message, 'danger');
+            showToast(data.message || 'Đã xảy ra lỗi', 'danger');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showToast('Đã xảy ra lỗi khi cấp thành tựu', 'danger');
+        });
+      }
+    });
+  }
+});.message, 'danger');
           }
         })
         .catch(error => {
