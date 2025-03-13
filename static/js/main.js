@@ -1251,6 +1251,35 @@ function showAchievementNotification(achievement) {
   });
 }
 
+// Xử lý nút cấp thành tựu người mới bắt đầu cho tất cả người dùng
+document.addEventListener('DOMContentLoaded', function() {
+  const grantAchievementBtn = document.getElementById('grantStarterAchievement');
+  if (grantAchievementBtn) {
+    grantAchievementBtn.addEventListener('click', function() {
+      if (confirm('Bạn có chắc muốn cấp thành tựu "Người mới bắt đầu" cho tất cả người dùng chưa có?')) {
+        fetch('/api/grant-starter-achievement', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            showToast(data.message, 'success');
+          } else {
+            showToast(data.message, 'danger');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showToast('Lỗi khi cấp thành tựu', 'danger');
+        });
+      }
+    });
+  }
+});
+
 // Setup advancements functionality
 function setupAdvancements() {
   const achievementsContainer = document.querySelector('#achievementTabs');

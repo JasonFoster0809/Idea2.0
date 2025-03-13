@@ -87,6 +87,26 @@
         </div>
     </div>
 
+    <!-- Statistics Card -->
+    <div class="col-md-12 mb-4">
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title">Thống kê</h5>
+                <p class="card-text">Tổng số người dùng: {{ total_users }}</p>
+                <p class="card-text">Số người dùng mới: {{ new_users }}</p>
+                <p class="card-text">Số đóng góp đang chờ duyệt: {{ pending_contributions }}</p>
+                <p class="card-text">Tổng số câu hỏi: {{ total_questions }}</p>
+
+                <div class="mt-4">
+                  <h6>Công cụ quản trị</h6>
+                  <button id="grantStarterAchievement" class="btn btn-warning btn-sm">
+                    <i class="fas fa-trophy"></i> Cấp thành tựu "Người mới bắt đầu" cho tất cả người dùng
+                  </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Top Contributors -->
     <div class="col-md-12 mt-4">
         <div class="card shadow">

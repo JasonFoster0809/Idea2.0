@@ -869,3 +869,60 @@ def use_item():
     result['new_achievements'] = achievement_data
     
     return jsonify(result)
+
+@app.route('/api/grant-starter-achievement', methods=['POST'])
+@login_required
+def grant_starter_achievement():
+    """Cấp thành tựu Người mới bắt đầu cho tất cả người dùng"""
+    if not current_user.is_admin:
+        abort(403)  # Chỉ admin mới có quyền sử dụng API này
+    
+    from models import User, Achievement, UserAchievement
+    
+    # Lấy thành tựu "Người mới bắt đầu"
+    achievement = Achievement.query.filter_by(name="Người mới bắt đầu").first()
+    if not achievement:
+        # Nếu chưa có thành tựu trong DB, khởi tạo
+        from achievement_manager import initialize_achievements
+        initialize_achievements()
+        achievement = Achievement.query.filter_by(name="Người mới bắt đầu").first()
+        if not achievement:
+            return jsonify({'success': False, 'message': 'Không tìm thấy thành tựu Người mới bắt đầu'})
+    
+    # Lấy tất cả người dùng
+    users = User.query.all()
+    count = 0
+    
+    # Cấp thành tựu cho mỗi người dùng nếu chưa có
+    for user in users:
+        # Kiểm tra xem đã có thành tựu này chưa
+        existing = UserAchievement.query.filter_by(
+            user_id=user.id,
+            achievement_id=achievement.id
+        ).first()
+        
+        if not existing:
+            # Cấp thành tựu mới
+            new_achievement = UserAchievement(
+                user_id=user.id,
+                achievement_id=achievement.id,
+                acquired_date=datetime.utcnow(),
+                notified=False
+            )
+            
+            # Thêm phần thưởng
+            if achievement.xp_reward:
+                user.add_experience(achievement.xp_reward)
+            
+            if achievement.coin_reward:
+                user.add_coins(achievement.coin_reward)
+            
+            db.session.add(new_achievement)
+            count += 1
+    
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'message': f'Đã cấp thành tựu "Người mới bắt đầu" cho {count} người dùng mới'
+    })
