@@ -951,7 +951,6 @@ function showQuizResults(score, total) {
   const resultsSection = document.querySelector('#quiz-results');
 
   if (!quizContent || !resultsSection) return;
-
   // Hide quiz content
   quizContent.classList.add('d-none');
 
@@ -1243,7 +1242,7 @@ function showAchievementNotification(achievement) {
       </div>
     </div>
   `;
-  
+
   showToast(achievementHtml, 'achievement', 8000);
 } {
     console.error('Error:', error);
@@ -1291,7 +1290,7 @@ function setupAdvancements() {
     const title = card.querySelector('h5');
     if (title && title.textContent) {
       card.setAttribute('data-achievement-name', title.textContent.trim());
-      
+
       // Tự động thêm achieved cho thành tựu "Người mới bắt đầu"
       if (title.textContent.trim() === "Người mới bắt đầu") {
         card.classList.add('achieved');
@@ -1309,7 +1308,7 @@ function setupAdvancements() {
       completedIcon.className = 'fas fa-check-circle achievement-completed-icon';
       iconElement.appendChild(completedIcon);
     }
-    
+
     // Thêm badge "Đã đạt được"
     const badgeElement = document.createElement('div');
     badgeElement.className = 'achievement-badge';
@@ -1985,6 +1984,11 @@ document.addEventListener('DOMContentLoaded', function() {
         updateQuestUI();
     }
 
+    // Kiểm tra thành tựu định kỳ (nếu hàm này tồn tại)
+    if (typeof checkAchievements === 'function') {
+        checkAchievements();
+    }
+
     // Initialize tooltips if available
     if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
         // Initialize tooltips only if not already initialized
@@ -2051,7 +2055,7 @@ function setupAdminTables() {
             // Add sorting and filtering capabilities here if needed
         });
     }
-    
+
     // Ensure modals are properly initialized
     if (typeof bootstrap !== 'undefined') {
         const userModals = document.querySelectorAll('.modal');
@@ -2421,7 +2425,7 @@ function updateProgressBar(progressBar, value) {
 function checkAchievements() {
     // Chỉ kiểm tra nếu người dùng đã đăng nhập
     if (!isUserLoggedIn()) return;
-    
+
     fetch('/api/check-achievements')
         .then(response => response.json())
         .then(data => {
@@ -2440,7 +2444,7 @@ function checkAchievements() {
 document.addEventListener('DOMContentLoaded', function() {
     // Kiểm tra thành tựu ngay khi tải trang
     checkAchievements();
-    
+
     // Kiểm tra định kỳ mỗi 5 phút
     setInterval(checkAchievements, 300000);
 });
@@ -2456,7 +2460,7 @@ function updateUserInfo() {
     // Tải lại trang hoặc thực hiện AJAX request để cập nhật thông tin
     // Ví dụ đơn giản nhất là tải lại trang
     // location.reload();
-    
+
     // Hoặc thực hiện AJAX request để cập nhật thông tin cụ thể
     fetch('/api/user-info')
         .then(response => response.json())
@@ -2944,7 +2948,7 @@ function showAlert3(message, type) {
 // Function to show achievement notification
 function showAchievementNotification(achievements) {
     if (!achievements || achievements.length === 0) return;
-    
+
     // For each achievement, show a notification
     achievements.forEach(achievement => {
         // Build rewards text
@@ -2958,7 +2962,7 @@ function showAchievementNotification(achievements) {
         if (achievement.item_reward) {
             rewardsText += `+${achievement.item_reward} `;
         }
-        
+
         Swal.fire({
             title: 'Thành tựu mới!',
             html: `
@@ -3006,12 +3010,12 @@ function checkAchievements() {
     // Check if user is authenticated (you can determine this by checking for a user-specific element)
     const isAuthenticated = document.querySelector('.user-profile') !== null || 
                            document.body.classList.contains('authenticated');
-    
+
     if (!isAuthenticated) {
         console.log("User not authenticated, skipping achievement check");
         return;
     }
-    
+
     fetch('/api/check-achievements')
         .then(response => {
             if (!response.ok) {
@@ -3034,7 +3038,7 @@ function checkAchievements() {
 document.addEventListener('DOMContentLoaded', () => {
     // Track page visit
     trackPageVisit();
-    
+
     if (typeof feather !== 'undefined') feather.replace();
     setupQuiz();
     handleShopVisitQuest();
@@ -3096,4 +3100,86 @@ function showToast(message, type = 'info', duration = 3000) {
     `;
     toastContainer.appendChild(toast);
     setTimeout(() => toast.remove(), duration);
+}
+
+
+// Achievement management
+document.addEventListener('DOMContentLoaded', function() {
+    // Xử lý lọc thành tựu
+    const filterButtons = document.querySelectorAll('.achievement-filter .btn');
+    const achievementCards = document.querySelectorAll('.achievement-card');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Đổi trạng thái active
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            const filter = this.getAttribute('data-filter');
+
+            // Lọc thành tựu
+            achievementCards.forEach(card => {
+                if (filter === 'all') {
+                    card.style.display = 'flex';
+                } else if (filter === 'achieved' && card.classList.contains('achieved')) {
+                    card.style.display = 'flex';
+                } else if (filter === 'unachieved' && !card.classList.contains('achieved')) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Kiểm tra thành tựu mới khi trang tải
+    checkNewAchievements();
+});
+
+// Hàm kiểm tra thành tựu mới 
+function checkNewAchievements() {
+    fetch('/check-achievements')
+        .then(response => response.json())
+        .then(data => {
+            if (data.new_achievements && data.new_achievements.length > 0) {
+                showAchievementNotification(data.new_achievements);
+            }
+        })
+        .catch(error => console.error('Error checking achievements:', error));
+}
+
+// Hiển thị thông báo thành tựu mới
+function showAchievementNotification(achievements) {
+    achievements.forEach(achievement => {
+        const notification = document.createElement('div');
+        notification.className = 'achievement-notification';
+        notification.innerHTML = `
+            <div class="achievement-notification-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="achievement-notification-content">
+                <h4>Thành tựu mới!</h4>
+                <p>${achievement.name}</p>
+                <div class="achievement-notification-rewards">
+                    ${achievement.xp_reward > 0 ? `<span class="badge bg-primary"><i class="fas fa-star"></i> +${achievement.xp_reward} XP</span>` : ''}
+                    ${achievement.coin_reward > 0 ? `<span class="badge bg-warning text-dark"><i class="fas fa-coins"></i> +${achievement.coin_reward} Xu</span>` : ''}
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Animation để hiển thị thông báo
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 100);
+
+        // Ẩn thông báo sau 5 giây
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.remove();
+            }, 500);
+        }, 5000);
+    });
 }

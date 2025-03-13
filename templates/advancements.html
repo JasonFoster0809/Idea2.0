@@ -210,6 +210,13 @@
                 });
             });
         });
+        
+        // Hiệu ứng cho các thành tựu đã đạt được
+        const achievedCards = document.querySelectorAll('.achievement-card.achieved');
+        achievedCards.forEach(card => {
+            card.style.transform = 'translateY(-3px)';
+            card.style.boxShadow = '0 5px 15px rgba(78, 115, 223, 0.15)';
+        });
     });
 </script>
 {% endblock %}

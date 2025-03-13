@@ -151,10 +151,10 @@ def contribute():
 def check_user_achievements():
     """Kiểm tra nếu người dùng đạt được thành tựu mới"""
     from achievement_manager import check_achievements
-    
+
     # Kiểm tra thành tựu mới
     new_achievements = check_achievements(current_user.id)
-    
+
     # Chuyển đổi thành tựu thành JSON
     achievement_data = []
     for achievement in new_achievements:
@@ -167,7 +167,7 @@ def check_user_achievements():
             'item_reward': achievement.item_reward,
             'icon': achievement.icon
         })
-    
+
     return jsonify({
         'new_achievements': achievement_data,
         'success': True
@@ -300,14 +300,14 @@ def inventory():
 def advancements():
     from achievements import get_achievements_by_category
     from models import UserAchievement, Achievement
-    
+
     # Lấy danh sách thành tựu theo danh mục
     achievements = get_achievements_by_category()
-    
+
     # Lấy danh sách ID thành tựu đã đạt được của người dùng
     user_achievements = UserAchievement.query.filter_by(user_id=current_user.id).all()
     achieved_ids = [ua.achievement_id for ua in user_achievements]
-    
+
     # Đánh dấu thành tựu đã đạt được
     for category in achievements:
         for achievement in achievements[category]:
@@ -317,7 +317,7 @@ def advancements():
                 achievement['achieved'] = True
             else:
                 achievement['achieved'] = False
-    
+
     return render_template('advancements.html', achievements=achievements)
 
 @app.route('/daily_quests')
@@ -408,7 +408,7 @@ def approve_contribution(id):
 
     from models import Contribution, Question, User
     contribution = Contribution.query.get_or_404(id)
-    
+
     # Kiểm tra xem đóng góp đã được duyệt chưa
     if contribution.approved:
         flash(f'Câu hỏi #{id} đã được duyệt trước đó!')
@@ -818,19 +818,19 @@ def use_item():
     data = request.json
     item_name = data.get('item_name')
     question_id = data.get('question_id')
-    
+
     if not item_name:
         return jsonify({'success': False, 'message': 'Thiếu tên vật phẩm'})
-    
+
     from models import InventoryItem
     item = InventoryItem.query.filter_by(user_id=current_user.id, item_name=item_name).first()
-    
+
     if not item or item.quantity <= 0:
         return jsonify({'success': False, 'message': 'Bạn không có vật phẩm này'})
-    
+
     # Xử lý logic sử dụng vật phẩm dựa trên loại
     result = {'success': True, 'message': f'Đã sử dụng {item_name}'}
-    
+
     # Logic xử lý các vật phẩm cụ thể
     if item_name == "50/50":
         # Logic loại bỏ 2 đáp án sai
@@ -838,21 +838,21 @@ def use_item():
     elif item_name == "Skip Question":
         # Logic bỏ qua câu hỏi
         result['skip'] = True
-    
+
     # Đánh dấu vật phẩm đã sử dụng (để theo dõi cho thành tựu)
     item.is_used = True
-    
+
     # Giảm số lượng
     item.quantity -= 1
     if item.quantity <= 0:
         db.session.delete(item)
-    
+
     db.session.commit()
-    
+
     # Kiểm tra nếu có thành tựu mới
     from achievement_manager import check_achievements
     new_achievements = check_achievements(current_user.id)
-    
+
     # Chuyển đổi thành tựu thành JSON
     achievement_data = []
     for achievement in new_achievements:
@@ -860,14 +860,14 @@ def use_item():
             'id': achievement.id,
             'name': achievement.name,
             'description': achievement.description,
-            'xp_reward': achievement.xp_reward,
+            'xpreward': achievement.xp_reward,
             'coin_reward': achievement.coin_reward,
             'item_reward': achievement.item_reward,
             'icon': achievement.icon
         })
-    
+
     result['new_achievements'] = achievement_data
-    
+
     return jsonify(result)
 
 @app.route('/api/grant-starter-achievement', methods=['POST'])
@@ -876,9 +876,9 @@ def grant_starter_achievement():
     """Cấp thành tựu Người mới bắt đầu cho tất cả người dùng"""
     if not current_user.is_admin:
         abort(403)  # Chỉ admin mới có quyền sử dụng API này
-    
+
     from models import User, Achievement, UserAchievement
-    
+
     # Lấy thành tựu "Người mới bắt đầu"
     achievement = Achievement.query.filter_by(name="Người mới bắt đầu").first()
     if not achievement:
@@ -888,11 +888,11 @@ def grant_starter_achievement():
         achievement = Achievement.query.filter_by(name="Người mới bắt đầu").first()
         if not achievement:
             return jsonify({'success': False, 'message': 'Không tìm thấy thành tựu Người mới bắt đầu'})
-    
+
     # Lấy tất cả người dùng
     users = User.query.all()
     count = 0
-    
+
     # Cấp thành tựu cho mỗi người dùng nếu chưa có
     for user in users:
         # Kiểm tra xem đã có thành tựu này chưa
@@ -900,7 +900,7 @@ def grant_starter_achievement():
             user_id=user.id,
             achievement_id=achievement.id
         ).first()
-        
+
         if not existing:
             # Cấp thành tựu mới
             new_achievement = UserAchievement(
@@ -909,20 +909,77 @@ def grant_starter_achievement():
                 acquired_date=datetime.utcnow(),
                 notified=False
             )
-            
+
             # Thêm phần thưởng
             if achievement.xp_reward:
                 user.add_experience(achievement.xp_reward)
-            
+
             if achievement.coin_reward:
                 user.add_coins(achievement.coin_reward)
-            
+
             db.session.add(new_achievement)
             count += 1
-    
+
     db.session.commit()
-    
+
     return jsonify({
         'success': True,
         'message': f'Đã cấp thành tựu "Người mới bắt đầu" cho {count} người dùng mới'
     })
+
+@app.route('/achievements')
+def achievements():
+    if current_user.is_authenticated:
+        # Kiểm tra thành tựu mới
+        check_achievements(current_user.id)
+
+        # Lấy thành tựu đã phân loại
+        achievements_by_category = get_achievements_by_category()
+
+        # Lấy thành tựu đã đạt của người dùng
+        user_achievements = UserAchievement.query.filter_by(user_id=current_user.id).all()
+        achieved_ids = [ua.achievement_id for ua in user_achievements]
+
+        # Đánh dấu thành tựu đã đạt được
+        for category, achievement_list in achievements_by_category.items():
+            for achievement in achievement_list:
+                achievement_obj = Achievement.query.filter_by(name=achievement['name']).first()
+                if achievement_obj and achievement_obj.id in achieved_ids:
+                    achievement['achieved'] = True
+                else:
+                    achievement['achieved'] = False
+
+        # Đánh dấu đã thông báo
+        unnotified = UserAchievement.query.filter_by(user_id=current_user.id, notified=False).all()
+        for ua in unnotified:
+            ua.notified = True
+        db.session.commit()
+
+        return render_template('advancements.html', achievements=achievements_by_category)
+    else:
+        return redirect(url_for('login'))
+
+@app.route('/check-achievements')
+def check_new_achievements():
+    if current_user.is_authenticated:
+        # Kiểm tra thành tựu mới
+        new_achievements = check_achievements(current_user.id)
+
+        # Lấy thông tin chi tiết về thành tựu mới
+        achievement_details = []
+        for achievement in new_achievements:
+            achievement_details.append({
+                'name': achievement.name,
+                'description': achievement.description,
+                'xp_reward': achievement.xp_reward,
+                'coin_reward': achievement.coin_reward,
+                'item_reward': achievement.item_reward,
+                'id': achievement.id
+            })
+
+        return jsonify({'new_achievements': achievement_details})
+    else:
+        return jsonify({'new_achievements': []})
+
+if __name__ == '__main__':
+    app.run(debug=True)
