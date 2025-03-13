@@ -1,0 +1,389 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Ngân hàng câu hỏi</h1>
+
+    <!-- Add New Question Button -->
+    <div class="mb-4">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addQuestionModal">
+            <i class="fas fa-plus"></i> Thêm câu hỏi mới
+        </button>
+    </div>
+
+    {% if questions %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách câu hỏi</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Môn học</th>
+                            <th>Lớp</th>
+                            <th>Độ khó</th>
+                            <th>Câu hỏi</th>
+                            <th>Ngày tạo</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for question in questions %}
+                        <tr>
+                            <td>{{ question.id }}</td>
+                            <td>{{ question.subject }}</td>
+                            <td>Lớp {{ question.grade }}</td>
+                            <td>
+                                {% if question.difficulty == 'easy' %}
+                                <span class="badge bg-success">Dễ</span>
+                                {% elif question.difficulty == 'medium' %}
+                                <span class="badge bg-warning text-dark">Trung bình</span>
+                                {% else %}
+                                <span class="badge bg-danger">Khó</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if question.question_image_url %}
+                                <span class="badge bg-info">Có hình ảnh</span>
+                                {% endif %}
+                                {{ question.question_text[:50] }}{% if question.question_text|length > 50 %}...{% endif %}
+                            </td>
+                            <td>{{ question.created_at.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewQuestionModal{{ question.id }}">
+                                    <i class="fas fa-eye"></i> Xem
+                                </button>
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editQuestionModal{{ question.id }}">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </button>
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteQuestionModal{{ question.id }}">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Question Modals -->
+    {% for question in questions %}
+    <div class="modal fade" id="viewQuestionModal{{ question.id }}" tabindex="-1" aria-labelledby="viewQuestionModalLabel{{ question.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewQuestionModalLabel{{ question.id }}">Xem câu hỏi #{{ question.id }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <h5>Môn học:</h5>
+                        <p>{{ question.subject }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5>Lớp:</h5>
+                        <p>Lớp {{ question.grade }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5>Độ khó:</h5>
+                        <p>
+                            {% if question.difficulty == 'easy' %}
+                            <span class="badge bg-success">Dễ</span>
+                            {% elif question.difficulty == 'medium' %}
+                            <span class="badge bg-warning text-dark">Trung bình</span>
+                            {% else %}
+                            <span class="badge bg-danger">Khó</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5>Câu hỏi:</h5>
+                        <p>{{ question.question_text }}</p>
+                    </div>
+
+                    {% if question.question_image_url %}
+                    <div class="mb-3 text-center">
+                        <h5>Hình ảnh câu hỏi:</h5>
+                        <img src="{{ question.question_image_url }}" alt="Hình ảnh câu hỏi" class="img-fluid" style="max-height: 300px;">
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <h5>Các phương án:</h5>
+                        <ul>
+                            <li><strong>A:</strong> {{ question.option_a }}</li>
+                            <li><strong>B:</strong> {{ question.option_b }}</li>
+                            <li><strong>C:</strong> {{ question.option_c }}</li>
+                            <li><strong>D:</strong> {{ question.option_d }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5>Đáp án đúng:</h5>
+                        <p>{{ question.correct_answer }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h5>Giải thích:</h5>
+                        <p>{{ question.explanation }}</p>
+                    </div>
+
+                    {% if question.explanation_image_url %}
+                    <div class="mb-3 text-center">
+                        <h5>Hình ảnh giải thích:</h5>
+                        <img src="{{ question.explanation_image_url }}" alt="Hình ảnh giải thích" class="img-fluid" style="max-height: 300px;">
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Question Modals -->
+    <div class="modal fade" id="editQuestionModal{{ question.id }}" tabindex="-1" aria-labelledby="editQuestionModalLabel{{ question.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editQuestionModalLabel{{ question.id }}">Chỉnh sửa câu hỏi #{{ question.id }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('edit_question', id=question.id) }}" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="subject{{ question.id }}" class="form-label">Môn học:</label>
+                            <input type="text" class="form-control" id="subject{{ question.id }}" name="subject" value="{{ question.subject }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="grade{{ question.id }}" class="form-label">Lớp:</label>
+                            <select class="form-control" id="grade{{ question.id }}" name="grade" required>
+                                <option value="6" {% if question.grade == 6 %}selected{% endif %}>Lớp 6</option>
+                                <option value="7" {% if question.grade == 7 %}selected{% endif %}>Lớp 7</option>
+                                <option value="8" {% if question.grade == 8 %}selected{% endif %}>Lớp 8</option>
+                                <option value="9" {% if question.grade == 9 %}selected{% endif %}>Lớp 9</option>
+                                <option value="10" {% if question.grade == 10 %}selected{% endif %}>Lớp 10</option>
+                                <option value="11" {% if question.grade == 11 %}selected{% endif %}>Lớp 11</option>
+                                <option value="12" {% if question.grade == 12 %}selected{% endif %}>Lớp 12</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="difficulty{{ question.id }}" class="form-label">Độ khó:</label>
+                            <select class="form-control" id="difficulty{{ question.id }}" name="difficulty" required>
+                                <option value="easy" {% if question.difficulty == 'easy' %}selected{% endif %}>Dễ</option>
+                                <option value="medium" {% if question.difficulty == 'medium' %}selected{% endif %}>Trung bình</option>
+                                <option value="hard" {% if question.difficulty == 'hard' %}selected{% endif %}>Khó</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="question_text{{ question.id }}" class="form-label">Câu hỏi:</label>
+                            <textarea class="form-control" id="question_text{{ question.id }}" name="question_text" rows="3" required>{{ question.question_text }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="question_image{{ question.id }}" class="form-label">Hình ảnh câu hỏi:</label>
+                            {% if question.question_image_url %}
+                            <div class="mb-2 text-center">
+                                <img src="{{ question.question_image_url }}" alt="Hình ảnh câu hỏi hiện tại" class="img-fluid" style="max-height: 200px;">
+                                <p class="text-muted">Hình ảnh hiện tại</p>
+                            </div>
+                            {% endif %}
+                            <input type="file" class="form-control" id="question_image{{ question.id }}" name="question_image">
+                            <small class="text-muted">Tải lên hình ảnh mới nếu bạn muốn thay đổi.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="option_a{{ question.id }}" class="form-label">Phương án A:</label>
+                            <input type="text" class="form-control" id="option_a{{ question.id }}" name="option_a" value="{{ question.option_a }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="option_b{{ question.id }}" class="form-label">Phương án B:</label>
+                            <input type="text" class="form-control" id="option_b{{ question.id }}" name="option_b" value="{{ question.option_b }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="option_c{{ question.id }}" class="form-label">Phương án C:</label>
+                            <input type="text" class="form-control" id="option_c{{ question.id }}" name="option_c" value="{{ question.option_c }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="option_d{{ question.id }}" class="form-label">Phương án D:</label>
+                            <input type="text" class="form-control" id="option_d{{ question.id }}" name="option_d" value="{{ question.option_d }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="correct_answer{{ question.id }}" class="form-label">Đáp án đúng:</label>
+                            <select class="form-control" id="correct_answer{{ question.id }}" name="correct_answer" required>
+                                <option value="A" {% if question.correct_answer == 'A' %}selected{% endif %}>A</option>
+                                <option value="B" {% if question.correct_answer == 'B' %}selected{% endif %}>B</option>
+                                <option value="C" {% if question.correct_answer == 'C' %}selected{% endif %}>C</option>
+                                <option value="D" {% if question.correct_answer == 'D' %}selected{% endif %}>D</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="explanation{{ question.id }}" class="form-label">Giải thích:</label>
+                            <textarea class="form-control" id="explanation{{ question.id }}" name="explanation" rows="3">{{ question.explanation }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="explanation_image{{ question.id }}" class="form-label">Hình ảnh giải thích:</label>
+                            {% if question.explanation_image_url %}
+                            <div class="mb-2 text-center">
+                                <img src="{{ question.explanation_image_url }}" alt="Hình ảnh giải thích hiện tại" class="img-fluid" style="max-height: 200px;">
+                                <p class="text-muted">Hình ảnh hiện tại</p>
+                            </div>
+                            {% endif %}
+                            <input type="file" class="form-control" id="explanation_image{{ question.id }}" name="explanation_image">
+                            <small class="text-muted">Tải lên hình ảnh mới nếu bạn muốn thay đổi.</small>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Question Modals -->
+    <div class="modal fade" id="deleteQuestionModal{{ question.id }}" tabindex="-1" aria-labelledby="deleteQuestionModalLabel{{ question.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteQuestionModalLabel{{ question.id }}">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa câu hỏi này? Hành động này không thể hoàn tác.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form action="{{ url_for('delete_question', id=question.id) }}" method="post">
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Add Question Modal -->
+    <div class="modal fade" id="addQuestionModal" tabindex="-1" aria-labelledby="addQuestionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addQuestionModalLabel">Thêm câu hỏi mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('add_question') }}" method="post" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Môn học:</label>
+                            <input type="text" class="form-control" id="subject" name="subject" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="grade" class="form-label">Lớp:</label>
+                            <select class="form-control" id="grade" name="grade" required>
+                                <option value="6">Lớp 6</option>
+                                <option value="7">Lớp 7</option>
+                                <option value="8">Lớp 8</option>
+                                <option value="9">Lớp 9</option>
+                                <option value="10">Lớp 10</option>
+                                <option value="11">Lớp 11</option>
+                                <option value="12">Lớp 12</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="difficulty" class="form-label">Độ khó:</label>
+                            <select class="form-control" id="difficulty" name="difficulty" required>
+                                <option value="easy">Dễ</option>
+                                <option value="medium" selected>Trung bình</option>
+                                <option value="hard">Khó</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="question_text" class="form-label">Câu hỏi:</label>
+                            <textarea class="form-control" id="question_text" name="question_text" rows="3" required></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="question_image" class="form-label">Hình ảnh câu hỏi (nếu có):</label>
+                            <input type="file" class="form-control" id="question_image" name="question_image">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="option_a" class="form-label">Phương án A:</label>
+                            <input type="text" class="form-control" id="option_a" name="option_a" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="option_b" class="form-label">Phương án B:</label>
+                            <input type="text" class="form-control" id="option_b" name="option_b" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="option_c" class="form-label">Phương án C:</label>
+                            <input type="text" class="form-control" id="option_c" name="option_c" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="option_d" class="form-label">Phương án D:</label>
+                            <input type="text" class="form-control" id="option_d" name="option_d" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="correct_answer" class="form-label">Đáp án đúng:</label>
+                            <select class="form-control" id="correct_answer" name="correct_answer" required>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="explanation" class="form-label">Giải thích:</label>
+                            <textarea class="form-control" id="explanation" name="explanation" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="explanation_image" class="form-label">Hình ảnh giải thích (nếu có):</label>
+                            <input type="file" class="form-control" id="explanation_image" name="explanation_image">
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-success">Thêm câu hỏi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <p>Chưa có câu hỏi nào trong ngân hàng. Hãy thêm câu hỏi mới!</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

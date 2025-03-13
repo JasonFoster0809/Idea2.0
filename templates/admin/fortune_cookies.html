@@ -1,0 +1,225 @@
+
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4">Fortune Cookies Management</h2>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Add New Fortune Cookie</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('admin_fortune_cookies') }}">
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Fortune Cookie Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Fortune Cookie</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Configure Gacha Rewards</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('admin_gacha_rewards') }}">
+                        <div id="rewards-container">
+                            <div class="row mb-3 reward-row">
+                                <div class="col-md-4">
+                                    <label class="form-label">Reward Name</label>
+                                    <input type="text" class="form-control" name="reward_name[]" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Weight (%)</label>
+                                    <input type="number" class="form-control" name="reward_weight[]" min="1" max="100" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Item (optional)</label>
+                                    <input type="text" class="form-control" name="reward_item[]">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="add-reward" class="btn btn-secondary mb-3">Add Reward Type</button>
+                        <button type="submit" class="btn btn-primary">Save Configuration</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Fortune Cookies</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Message</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cookie in cookies %}
+                        <tr>
+                            <td>{{ cookie.id }}</td>
+                            <td>{{ cookie.message }}</td>
+                            <td>
+                                {% if cookie.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('admin_toggle_cookie', cookie_id=cookie.id) }}" class="btn btn-primary btn-sm">
+                                    {% if cookie.is_active %}Deactivate{% else %}Activate{% endif %}
+                                </a>
+                                <a href="{{ url_for('admin_delete_cookie', cookie_id=cookie.id) }}" class="btn btn-danger btn-sm" 
+                                   onclick="return confirm('Are you sure you want to delete this fortune cookie?')">
+                                    Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add new reward row
+        document.getElementById('add-reward').addEventListener('click', function() {
+            const container = document.getElementById('rewards-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'row mb-3 reward-row';
+            newRow.innerHTML = `
+                <div class="col-md-4">
+                    <input type="text" class="form-control" name="reward_name[]" required>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" class="form-control" name="reward_weight[]" min="1" max="100" required>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="reward_item[]">
+                        <button type="button" class="btn btn-danger remove-reward">X</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(newRow);
+            
+            // Add remove event listener
+            newRow.querySelector('.remove-reward').addEventListener('click', function() {
+                container.removeChild(newRow);
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% extends "admin/base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4">Quản lý Fortune Cookies</h2>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách Fortune Cookies</h6>
+            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addCookieModal">
+                <i data-feather="plus-circle"></i> Thêm mới
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nội dung</th>
+                            <th>Loại</th>
+                            <th>Giá trị</th>
+                            <th>Tỉ lệ</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fortune-cookies-list">
+                        <!-- Fortune cookies will be loaded here -->
+                        <tr>
+                            <td colspan="6" class="text-center">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Cookie Modal -->
+<div class="modal fade" id="addCookieModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm Fortune Cookie mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="add-cookie-form">
+                    <div class="mb-3">
+                        <label for="cookie-message" class="form-label">Nội dung</label>
+                        <textarea class="form-control" id="cookie-message" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cookie-type" class="form-label">Loại</label>
+                        <select class="form-select" id="cookie-type" required>
+                            <option value="xp">Kinh nghiệm</option>
+                            <option value="coins">Xu</option>
+                            <option value="item">Vật phẩm</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cookie-value" class="form-label">Giá trị</label>
+                        <input type="number" class="form-control" id="cookie-value" min="1" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cookie-rarity" class="form-label">Tỉ lệ (0.01 - 1.0)</label>
+                        <input type="number" class="form-control" id="cookie-rarity" min="0.01" max="1" step="0.01" value="0.5" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Thêm mới</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Cookie Modal (to be implemented) -->
+<div class="modal fade" id="editCookieModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa Fortune Cookie</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Edit form will be implemented -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

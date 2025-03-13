@@ -1,0 +1,135 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">Câu hỏi đóng góp của tôi</h1>
+
+    {% if contributions %}
+        <div class="card shadow">
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Môn học</th>
+                            <th>Lớp</th>
+                            <th>Câu hỏi</th>
+                            <th>Ngày tạo</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contribution in contributions %}
+                        <tr>
+                            <td>{{ contribution.subject }}</td>
+                            <td>Lớp {{ contribution.grade }}</td>
+                            <td>
+                                {% if contribution.question_image_url %}
+                                <span class="badge bg-info">Có hình ảnh</span> 
+                                {% endif %}
+                                {{ contribution.question[:50] }}{% if contribution.question|length > 50 %}...{% endif %}
+                            </td>
+                            <td>{{ contribution.created_at.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                {% if contribution.approved %}
+                                <span class="badge bg-success">Đã phê duyệt</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark">Đang chờ phê duyệt</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#contributionModal{{ contribution.id }}">
+                                    <i class="fas fa-eye"></i> Chi tiết
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modals for question details -->
+        {% for contribution in contributions %}
+        <div class="modal fade" id="contributionModal{{ contribution.id }}" tabindex="-1" aria-labelledby="modalLabel{{ contribution.id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel{{ contribution.id }}">Chi tiết câu hỏi</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h5>Câu hỏi:</h5>
+                        <p>{{ contribution.question }}</p>
+
+                        {% if contribution.question_image_url %}
+                        <div class="text-center mb-3">
+                            <h5>Hình ảnh câu hỏi:</h5>
+                            <img src="{{ contribution.question_image_url }}" alt="Hình ảnh câu hỏi" class="img-fluid" style="max-height: 300px;">
+                        </div>
+                        {% endif %}
+
+                        <h5>Các phương án:</h5>
+                        <ul>
+                            <li><strong>A:</strong> {{ contribution.option_a }}</li>
+                            <li><strong>B:</strong> {{ contribution.option_b }}</li>
+                            <li><strong>C:</strong> {{ contribution.option_c }}</li>
+                            <li><strong>D:</strong> {{ contribution.option_d }}</li>
+                        </ul>
+
+                        <h5>Đáp án đúng:</h5>
+                        <p>{{ contribution.correct_answer }}</p>
+
+                        <h5>Giải thích:</h5>
+                        <p>{{ contribution.explanation }}</p>
+
+                        {% if contribution.explanation_image_url %}
+                        <div class="text-center">
+                            <h5>Hình ảnh giải thích:</h5>
+                            <img src="{{ contribution.explanation_image_url }}" alt="Hình ảnh giải thích" class="img-fluid" style="max-height: 300px;">
+                        </div>
+                        {% endif %}
+
+                        <div class="mt-3">
+                            <strong>Trạng thái:</strong>
+                            {% if contribution.approved %}
+                                <span class="badge bg-success">Đã phê duyệt</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Đang chờ phê duyệt</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">
+            <p>Bạn chưa đóng góp câu hỏi nào. <a href="{{ url_for('contribute') }}">Đóng góp ngay!</a></p>
+        </div>
+    {% endif %}
+</div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Xử lý sự kiện mở modal
+        const contributionModals = document.querySelectorAll('.modal');
+        contributionModals.forEach(modal => {
+            modal.addEventListener('shown.bs.modal', function() {
+                // Đảm bảo modal chỉ xuất hiện 1 lần
+                document.body.style.overflow = 'hidden';
+            });
+
+            modal.addEventListener('hidden.bs.modal', function() {
+                document.body.style.overflow = '';
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,104 @@
+
+{% extends "admin/base.html" %}
+
+{% block title %}Quản lý người dùng{% endblock %}
+
+{% block content %}
+<div class="admin-section">
+    <div class="admin-section-header">
+        <h2><i data-feather="users"></i> Quản lý người dùng</h2>
+    </div>
+    <div class="admin-section-content">
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên người dùng</th>
+                                <th>Email</th>
+                                <th>Xu</th>
+                                <th>Kinh nghiệm</th>
+                                <th>Cấp bậc</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.coins }}</td>
+                                <td>{{ user.experience }}</td>
+                                <td>{{ user.rank }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary edit-user-btn" data-user-id="{{ user.id }}" data-bs-toggle="modal" data-bs-target="#editModal{{ user.id }}">
+                                        <i data-feather="edit"></i> Chỉnh sửa
+                                    </button>
+                                    
+                                    <form id="toggleAdmin-{{ user.id }}" method="POST" action="{{ url_for('toggle_admin', user_id=user.id) }}" class="d-inline">
+                                        {% if not user.is_admin %}
+                                        <button type="submit" class="btn btn-sm btn-warning">
+                                            <i data-feather="star"></i> Cấp quyền Admin
+                                        </button>
+                                        {% else %}
+                                        <button type="submit" class="btn btn-sm btn-secondary">
+                                            <i data-feather="user"></i> Hủy quyền Admin
+                                        </button>
+                                        {% endif %}
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Edit Modals -->
+{% for user in users %}
+<div class="modal fade" id="editModal{{ user.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ user.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editModalLabel{{ user.id }}">Chỉnh sửa người dùng #{{ user.id }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('edit_user', user_id=user.id) }}" id="editUserForm-{{ user.id }}">
+                    <div class="mb-3">
+                        <label for="username{{ user.id }}" class="form-label">Tên người dùng</label>
+                        <input type="text" class="form-control" id="username{{ user.id }}" name="username" value="{{ user.username }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email{{ user.id }}" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email{{ user.id }}" name="email" value="{{ user.email }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="coins{{ user.id }}" class="form-label">Xu</label>
+                        <input type="number" class="form-control" id="coins{{ user.id }}" name="coins" value="{{ user.coins }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="experience{{ user.id }}" class="form-label">Kinh nghiệm</label>
+                        <input type="number" class="form-control" id="experience{{ user.id }}" name="experience" value="{{ user.experience }}" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/admin.js"></script>
+{% endblock %}

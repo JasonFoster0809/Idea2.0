@@ -1,0 +1,177 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow" data-aos="fade-up">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Đóng góp câu hỏi</h2>
+                    <form method="POST" enctype="multipart/form-data" action="{{ url_for('contribute_post') }}">
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Môn học</label>
+                            <select class="form-select" id="subject" name="subject" required>
+                                <option value="">Chọn môn học</option>
+                                <option value="Toán">Toán</option>
+                                <option value="Văn">Văn</option>
+                                <option value="Hóa">Hóa</option>
+                                <option value="Lý">Lý</option>
+                                <option value="Sinh">Sinh</option>
+                                <option value="Sử">Sử</option>
+                                <option value="Địa">Địa</option>
+                                <option value="Kinh tế pháp luật">Kinh tế pháp luật</option>
+                                <option value="Tin học">Tin học</option>
+                                <option value="Tiếng Anh">Tiếng Anh</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="grade" class="form-label">Lớp</label>
+                            <select class="form-select" id="grade" name="grade" required>
+                                <option value="10">Lớp 10</option>
+                                <option value="11">Lớp 11</option>
+                                <option value="12">Lớp 12</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Câu hỏi</label>
+                            <div class="form-check form-check-inline mb-2">
+                                <input class="form-check-input" type="radio" name="question_input_type" id="question_text_type" value="text" checked>
+                                <label class="form-check-label" for="question_text_type">Nhập văn bản</label>
+                            </div>
+                            <div class="form-check form-check-inline mb-2">
+                                <input class="form-check-input" type="radio" name="question_input_type" id="question_image_type" value="image">
+                                <label class="form-check-label" for="question_image_type">Tải lên hình ảnh</label>
+                            </div>
+                            
+                            <div id="question_text_container">
+                                <textarea class="form-control" id="question" name="question" rows="3"></textarea>
+                            </div>
+                            <div id="question_image_container" style="display: none;">
+                                <input type="file" class="form-control" id="question_image" name="question_image" accept="image/*">
+                                <small class="text-muted">Hình ảnh câu hỏi (jpg, png, gif)</small>
+                                <div class="mt-2">
+                                    <img id="question_image_preview" src="#" alt="Xem trước hình ảnh" style="max-height: 200px; display: none;" class="img-fluid">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Các lựa chọn</label>
+                            <input type="text" class="form-control mb-2" name="option_a" placeholder="Lựa chọn A" required>
+                            <input type="text" class="form-control mb-2" name="option_b" placeholder="Lựa chọn B" required>
+                            <input type="text" class="form-control mb-2" name="option_c" placeholder="Lựa chọn C" required>
+                            <input type="text" class="form-control mb-2" name="option_d" placeholder="Lựa chọn D" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="correct_answer" class="form-label">Đáp án đúng</label>
+                            <select class="form-select" id="correct_answer" name="correct_answer" required>
+                                <option value="A">A</option>
+                                <option value="B">B</option>
+                                <option value="C">C</option>
+                                <option value="D">D</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Lời giải thích</label>
+                            <div class="form-check form-check-inline mb-2">
+                                <input class="form-check-input" type="radio" name="explanation_input_type" id="explanation_text_type" value="text" checked>
+                                <label class="form-check-label" for="explanation_text_type">Nhập văn bản</label>
+                            </div>
+                            <div class="form-check form-check-inline mb-2">
+                                <input class="form-check-input" type="radio" name="explanation_input_type" id="explanation_image_type" value="image">
+                                <label class="form-check-label" for="explanation_image_type">Tải lên hình ảnh</label>
+                            </div>
+                            
+                            <div id="explanation_text_container">
+                                <textarea class="form-control" id="explanation" name="explanation" rows="3"></textarea>
+                            </div>
+                            <div id="explanation_image_container" style="display: none;">
+                                <input type="file" class="form-control" id="explanation_image" name="explanation_image" accept="image/*">
+                                <small class="text-muted">Hình ảnh lời giải (jpg, png, gif)</small>
+                                <div class="mt-2">
+                                    <img id="explanation_image_preview" src="#" alt="Xem trước hình ảnh" style="max-height: 200px; display: none;" class="img-fluid">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Gửi câu hỏi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Toggle between text and image inputs for question
+    document.querySelectorAll('input[name="question_input_type"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            if (this.value === 'text') {
+                document.getElementById('question_text_container').style.display = 'block';
+                document.getElementById('question_image_container').style.display = 'none';
+                document.getElementById('question').setAttribute('required', 'required');
+                document.getElementById('question_image').removeAttribute('required');
+            } else {
+                document.getElementById('question_text_container').style.display = 'none';
+                document.getElementById('question_image_container').style.display = 'block';
+                document.getElementById('question').removeAttribute('required');
+                document.getElementById('question_image').setAttribute('required', 'required');
+            }
+        });
+    });
+
+    // Toggle between text and image inputs for explanation
+    document.querySelectorAll('input[name="explanation_input_type"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            if (this.value === 'text') {
+                document.getElementById('explanation_text_container').style.display = 'block';
+                document.getElementById('explanation_image_container').style.display = 'none';
+            } else {
+                document.getElementById('explanation_text_container').style.display = 'none';
+                document.getElementById('explanation_image_container').style.display = 'block';
+            }
+        });
+    });
+    
+    // Show image preview when uploading question image
+    document.getElementById('question_image').addEventListener('change', function() {
+        const file = this.files[0];
+        const preview = document.getElementById('question_image_preview');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none';
+        }
+    });
+    
+    // Show image preview when uploading explanation image
+    document.getElementById('explanation_image').addEventListener('change', function() {
+        const file = this.files[0];
+        const preview = document.getElementById('explanation_image_preview');
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

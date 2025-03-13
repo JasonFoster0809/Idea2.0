@@ -1,0 +1,237 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Đóng góp chờ phê duyệt</h1>
+
+    {% if contributions %}
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách câu hỏi chờ phê duyệt</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Người đóng góp</th>
+                            <th>Môn học</th>
+                            <th>Lớp</th>
+                            <th>Câu hỏi</th>
+                            <th>Ngày tạo</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for contribution in contributions %}
+                        <tr>
+                            <td>{{ contribution.id }}</td>
+                            <td>{{ contribution.author.username }}</td>
+                            <td>{{ contribution.subject }}</td>
+                            <td>Lớp {{ contribution.grade }}</td>
+                            <td>
+                                {% if contribution.question_image_url %}
+                                <span class="badge bg-info">Có hình ảnh</span>
+                                {% endif %}
+                                {{ contribution.question[:50] }}{% if contribution.question|length > 50 %}...{% endif %}
+                            </td>
+                            <td>{{ contribution.created_at.strftime('%d/%m/%Y') }}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewModal{{ contribution.id }}">
+                                    <i class="fas fa-eye"></i> Xem
+                                </button>
+                                <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#approveModal{{ contribution.id }}">
+                                    <i class="fas fa-check"></i> Duyệt
+                                </button>
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#rejectModal{{ contribution.id }}">
+                                    <i class="fas fa-times"></i> Từ chối
+                                </button>
+                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal{{ contribution.id }}">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Modals -->
+    {% for contribution in contributions %}
+    <div class="modal fade" id="viewModal{{ contribution.id }}" tabindex="-1" aria-labelledby="viewModalLabel{{ contribution.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewModalLabel{{ contribution.id }}">Xem đóng góp #{{ contribution.id }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <h5>Câu hỏi:</h5>
+                    <p>{{ contribution.question }}</p>
+
+                    {% if contribution.question_image_url %}
+                    <div class="text-center mb-3">
+                        <h5>Hình ảnh câu hỏi:</h5>
+                        <img src="{{ contribution.question_image_url }}" alt="Hình ảnh câu hỏi" class="img-fluid" style="max-height: 300px;">
+                    </div>
+                    {% endif %}
+
+                    <h5>Các phương án:</h5>
+                    <ul>
+                        <li><strong>A:</strong> {{ contribution.option_a }}</li>
+                        <li><strong>B:</strong> {{ contribution.option_b }}</li>
+                        <li><strong>C:</strong> {{ contribution.option_c }}</li>
+                        <li><strong>D:</strong> {{ contribution.option_d }}</li>
+                    </ul>
+
+                    <h5>Đáp án đúng:</h5>
+                    <p>{{ contribution.correct_answer }}</p>
+
+                    <h5>Giải thích:</h5>
+                    <p>{{ contribution.explanation }}</p>
+
+                    {% if contribution.explanation_image_url %}
+                    <div class="text-center">
+                        <h5>Hình ảnh giải thích:</h5>
+                        <img src="{{ contribution.explanation_image_url }}" alt="Hình ảnh giải thích" class="img-fluid" style="max-height: 300px;">
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approve Modals -->
+    <div class="modal fade" id="approveModal{{ contribution.id }}" tabindex="-1" aria-labelledby="approveModalLabel{{ contribution.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="approveModalLabel{{ contribution.id }}">Xác nhận phê duyệt</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn phê duyệt câu hỏi này?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form action="{{ url_for('approve_contribution', id=contribution.id) }}" method="post">
+                        <button type="submit" class="btn btn-success">Phê duyệt</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject Modals -->
+    <div class="modal fade" id="rejectModal{{ contribution.id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ contribution.id }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel{{ contribution.id }}">Xác nhận từ chối</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn từ chối câu hỏi này? Hành động này sẽ xóa câu hỏi khỏi hệ thống.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form action="{{ url_for('reject_contribution', id=contribution.id) }}" method="post">
+                        <button type="submit" class="btn btn-danger">Từ chối</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modals -->
+    <div class="modal fade" id="editModal{{ contribution.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ contribution.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel{{ contribution.id }}">Chỉnh sửa đóng góp #{{ contribution.id }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('edit_contribution', id=contribution.id) }}" method="post">
+                        <div class="mb-3">
+                            <label for="question{{ contribution.id }}" class="form-label">Câu hỏi:</label>
+                            <textarea class="form-control" id="question{{ contribution.id }}" name="question" rows="3" required>{{ contribution.question }}</textarea>
+                        </div>
+
+                        {% if contribution.question_image_url %}
+                        <div class="mb-3 text-center">
+                            <label class="form-label">Hình ảnh câu hỏi:</label>
+                            <div>
+                                <img src="{{ contribution.question_image_url }}" alt="Hình ảnh câu hỏi" class="img-fluid" style="max-height: 300px;">
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label for="option_a{{ contribution.id }}" class="form-label">Phương án A:</label>
+                            <input type="text" class="form-control" id="option_a{{ contribution.id }}" name="option_a" value="{{ contribution.option_a }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="option_b{{ contribution.id }}" class="form-label">Phương án B:</label>
+                            <input type="text" class="form-control" id="option_b{{ contribution.id }}" name="option_b" value="{{ contribution.option_b }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="option_c{{ contribution.id }}" class="form-label">Phương án C:</label>
+                            <input type="text" class="form-control" id="option_c{{ contribution.id }}" name="option_c" value="{{ contribution.option_c }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="option_d{{ contribution.id }}" class="form-label">Phương án D:</label>
+                            <input type="text" class="form-control" id="option_d{{ contribution.id }}" name="option_d" value="{{ contribution.option_d }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="correct_answer{{ contribution.id }}" class="form-label">Đáp án đúng:</label>
+                            <select class="form-control" id="correct_answer{{ contribution.id }}" name="correct_answer" required>
+                                <option value="A" {% if contribution.correct_answer == 'A' %}selected{% endif %}>A</option>
+                                <option value="B" {% if contribution.correct_answer == 'B' %}selected{% endif %}>B</option>
+                                <option value="C" {% if contribution.correct_answer == 'C' %}selected{% endif %}>C</option>
+                                <option value="D" {% if contribution.correct_answer == 'D' %}selected{% endif %}>D</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="explanation{{ contribution.id }}" class="form-label">Giải thích:</label>
+                            <textarea class="form-control" id="explanation{{ contribution.id }}" name="explanation" rows="3">{{ contribution.explanation }}</textarea>
+                        </div>
+
+                        {% if contribution.explanation_image_url %}
+                        <div class="mb-3 text-center">
+                            <label class="form-label">Hình ảnh giải thích:</label>
+                            <div>
+                                <img src="{{ contribution.explanation_image_url }}" alt="Hình ảnh giải thích" class="img-fluid" style="max-height: 300px;">
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="alert alert-info">
+        <p>Không có câu hỏi nào đang chờ phê duyệt.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

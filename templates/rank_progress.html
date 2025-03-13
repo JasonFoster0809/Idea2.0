@@ -1,0 +1,120 @@
+
+{% macro rank_progress(user, RANK_THRESHOLDS) %}
+<div class="rank-card mb-4" data-rank="{{ user.rank.lower() }}">
+    <div class="rank-header d-flex justify-content-between align-items-center">
+        <h5>Rank: <span class="rank-name">{{ user.rank }}</span></h5>
+        <div class="rank-badge">
+            <img src="{{ url_for('static', filename='images/ranks/' + user.rank.lower() + '.png') }}" alt="{{ user.rank }}" class="rank-icon">
+        </div>
+    </div>
+    
+    {% set next_rank = None %}
+    {% set next_threshold = 0 %}
+    {% set current_threshold = 0 %}
+    {% set found_current = false %}
+    
+    {% for rank, threshold in RANK_THRESHOLDS.items() | sort(attribute='1') %}
+        {% if not found_current and user.rank == rank %}
+            {% set current_threshold = threshold %}
+            {% set found_current = true %}
+        {% elif found_current and next_rank is none %}
+            {% set next_rank = rank %}
+            {% set next_threshold = threshold %}
+        {% endif %}
+    {% endfor %}
+    
+    {% if next_rank %}
+        {% set progress = ((user.experience - current_threshold) / (next_threshold - current_threshold) * 100) | int %}
+        <div class="xp-progress">
+            <div class="progress-text d-flex justify-content-between">
+                <small>{{ user.experience }} XP</small>
+                <small>{{ next_threshold }} XP ({{ next_rank }})</small>
+            </div>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: {{ progress }}%" 
+                     aria-valuenow="{{ progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    {% else %}
+        <div class="xp-progress">
+            <div class="progress-text">
+                {% if user.rank == 'Diamond' %}
+                    <small>{{ user.experience }} XP - Đã đạt rank cao nhất!</small>
+                {% else %}
+                    <small>{{ user.experience }} XP</small>
+                {% endif %}
+            </div>
+            <div class="progress">
+                <div class="progress-bar" role="progressbar" style="width: 100%" 
+                     aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        </div>
+    {% endif %}
+    
+    <div class="rank-bonus mt-2">
+        <small class="text-muted">Rank Bonus: +{{ (user.get_coin_multiplier() - 1) * 100 | int }}% XP and Coins</small>
+    </div>
+</div>
+{% endmacro %}
+{% macro rank_progress(user, RANK_THRESHOLDS) %}
+<div class="rank-progress-container">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="card-title">Cấp độ & Kinh nghiệm</h4>
+                        <div class="rank-badge">
+                            <img src="{{ url_for('static', filename='images/ranks/' + user.rank.lower() + '.png') }}" 
+                                 alt="{{ user.rank }}" class="rank-icon">
+                        </div>
+                    </div>
+                    
+                    {% set next_rank = None %}
+                    {% set next_threshold = 0 %}
+                    {% set current_threshold = 0 %}
+
+                    {% for rank, threshold in RANK_THRESHOLDS.items() | sort(attribute='1') %}
+                        {% if user.rank == rank %}
+                            {% set current_threshold = threshold %}
+                            {% for next_r, next_t in RANK_THRESHOLDS.items() | sort(attribute='1') %}
+                                {% if next_t > threshold and not next_rank %}
+                                    {% set next_rank = next_r %}
+                                    {% set next_threshold = next_t %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                    
+                    <p>Rank hiện tại: <strong class="rank-name">{{ user.rank }}</strong></p>
+                    <p>Kinh nghiệm: <strong>{{ user.experience }} XP</strong></p>
+                    
+                    <div class="rank-progress mt-3">
+                        {% if next_rank %}
+                        <p class="mb-1">Tiến trình ({{ user.experience - current_threshold }}/{{ next_threshold - current_threshold }})</p>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                                 role="progressbar" 
+                                 style="width: {{ ((user.experience - current_threshold) / (next_threshold - current_threshold) * 100)|round }}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">Rank tiếp theo: {{ next_rank }}</small>
+                        {% else %}
+                        <p class="mb-1">Kinh nghiệm: {{ user.experience }} XP</p>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                                 role="progressbar" 
+                                 style="width: 100%">
+                            </div>
+                        </div>
+                        {% if user.rank == 'Diamond' %}
+                        <small class="text-muted">Đã đạt rank cao nhất!</small>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}

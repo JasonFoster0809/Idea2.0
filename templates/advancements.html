@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4" data-aos="fade-down">Thành tựu</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="achievement-filter mb-3">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-primary active" data-filter="all">Tất cả</button>
+                    <button type="button" class="btn btn-outline-primary" data-filter="achieved">Đã đạt được</button>
+                    <button type="button" class="btn btn-outline-primary" data-filter="unachieved">Chưa đạt được</button>
+                </div>
+            </div>
+
+            <ul class="nav nav-tabs" id="achievementTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab" aria-controls="general" aria-selected="true">
+                        <i class="fas fa-star"></i> Tổng hợp
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="quiz-tab" data-bs-toggle="tab" data-bs-target="#quiz" type="button" role="tab" aria-controls="quiz" aria-selected="false">
+                        <i class="fas fa-book"></i> Học tập
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="contribution-tab" data-bs-toggle="tab" data-bs-target="#contribution" type="button" role="tab" aria-controls="contribution" aria-selected="false">
+                        <i class="fas fa-hand-holding-heart"></i> Đóng góp
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="special-tab" data-bs-toggle="tab" data-bs-target="#special" type="button" role="tab" aria-controls="special" aria-selected="false">
+                        <i class="fas fa-trophy"></i> Đặc biệt
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content p-3 border border-top-0 rounded-bottom" id="achievementTabsContent">
+                <div class="tab-pane fade show active" id="general" role="tabpanel" aria-labelledby="general-tab">
+                    <div class="row">
+                        {% for achievement in achievements.general %}
+                            <div class="col-md-4 mb-3">
+                                <div class="achievement-card {% if achievement.achieved %}achieved{% endif %}" data-aos="fade-up">
+                                    <div class="achievement-icon">
+                                        <i class="fas fa-trophy achievement-default-icon"></i>
+                                    </div>
+                                    <div class="achievement-info">
+                                        <h5>{{ achievement.name|safe }}</h5>
+                                        <p>{{ achievement.description|safe }}</p>
+                                        <div class="achievement-rewards">
+                                            {% if achievement.achieved %}
+                                                <div class="reward-status mb-2">
+                                                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Đã nhận</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if achievement.xp_reward > 0 %}
+                                                <span class="badge bg-primary"><i class="fas fa-star"></i> {{ achievement.xp_reward }} XP</span>
+                                            {% endif %}
+                                            {% if achievement.coin_reward > 0 %}
+                                                <span class="badge bg-warning text-dark"><i class="fas fa-coins"></i> {{ achievement.coin_reward }} Xu</span>
+                                            {% endif %}
+                                            {% if achievement.item_reward %}
+                                                <span class="badge bg-success"><i class="fas fa-gift"></i> {{ achievement.item_reward }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="quiz" role="tabpanel" aria-labelledby="quiz-tab">
+                    <div class="row">
+                        {% for achievement in achievements.quiz %}
+                            <div class="col-md-4 mb-3">
+                                <div class="achievement-card {% if achievement.achieved %}achieved{% endif %}" data-aos="fade-up">
+                                    <div class="achievement-icon">
+                                        <i class="fas fa-trophy achievement-default-icon"></i>
+                                    </div>
+                                    <div class="achievement-info">
+                                        <h5>{{ achievement.name|safe }}</h5>
+                                        <p>{{ achievement.description|safe }}</p>
+                                        <div class="achievement-rewards">
+                                            {% if achievement.achieved %}
+                                                <div class="reward-status mb-2">
+                                                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Đã nhận</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if achievement.xp_reward > 0 %}
+                                                <span class="badge bg-primary"><i class="fas fa-star"></i> {{ achievement.xp_reward }} XP</span>
+                                            {% endif %}
+                                            {% if achievement.coin_reward > 0 %}
+                                                <span class="badge bg-warning text-dark"><i class="fas fa-coins"></i> {{ achievement.coin_reward }} Xu</span>
+                                            {% endif %}
+                                            {% if achievement.item_reward %}
+                                                <span class="badge bg-success"><i class="fas fa-gift"></i> {{ achievement.item_reward }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="contribution" role="tabpanel" aria-labelledby="contribution-tab">
+                    <div class="row">
+                        {% for achievement in achievements.contribution %}
+                            <div class="col-md-4 mb-3">
+                                <div class="achievement-card {% if achievement.achieved %}achieved{% endif %}" data-aos="fade-up">
+                                    <div class="achievement-icon">
+                                        <i class="fas fa-trophy achievement-default-icon"></i>
+                                    </div>
+                                    <div class="achievement-info">
+                                        <h5>{{ achievement.name|safe }}</h5>
+                                        <p>{{ achievement.description|safe }}</p>
+                                        <div class="achievement-rewards">
+                                            {% if achievement.achieved %}
+                                                <div class="reward-status mb-2">
+                                                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Đã nhận</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if achievement.xp_reward > 0 %}
+                                                <span class="badge bg-primary"><i class="fas fa-star"></i> {{ achievement.xp_reward }} XP</span>
+                                            {% endif %}
+                                            {% if achievement.coin_reward > 0 %}
+                                                <span class="badge bg-warning text-dark"><i class="fas fa-coins"></i> {{ achievement.coin_reward }} Xu</span>
+                                            {% endif %}
+                                            {% if achievement.item_reward %}
+                                                <span class="badge bg-success"><i class="fas fa-gift"></i> {{ achievement.item_reward }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="special" role="tabpanel" aria-labelledby="special-tab">
+                    <div class="row">
+                        {% for achievement in achievements.special %}
+                            <div class="col-md-4 mb-3">
+                                <div class="achievement-card {% if achievement.achieved %}achieved{% endif %}" data-aos="fade-up">
+                                    <div class="achievement-icon">
+                                        <i class="fas fa-trophy achievement-default-icon"></i>
+                                    </div>
+                                    <div class="achievement-info">
+                                        <h5>{{ achievement.name|safe }}</h5>
+                                        <p>{{ achievement.description|safe }}</p>
+                                        <div class="achievement-rewards">
+                                            {% if achievement.achieved %}
+                                                <div class="reward-status mb-2">
+                                                    <span class="badge bg-success"><i class="fas fa-check-circle"></i> Đã nhận</span>
+                                                </div>
+                                            {% endif %}
+                                            {% if achievement.xp_reward > 0 %}
+                                                <span class="badge bg-primary"><i class="fas fa-star"></i> {{ achievement.xp_reward }} XP</span>
+                                            {% endif %}
+                                            {% if achievement.coin_reward > 0 %}
+                                                <span class="badge bg-warning text-dark"><i class="fas fa-coins"></i> {{ achievement.coin_reward }} Xu</span>
+                                            {% endif %}
+                                            {% if achievement.item_reward %}
+                                                <span class="badge bg-success"><i class="fas fa-gift"></i> {{ achievement.item_reward }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section nhiệm vụ hằng ngày đã được xóa -->
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Xử lý lọc thành tựu
+        const filterButtons = document.querySelectorAll('.achievement-filter .btn');
+        const achievementCards = document.querySelectorAll('.achievement-card');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Đổi trạng thái active
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                
+                // Lọc thành tựu
+                achievementCards.forEach(card => {
+                    if (filter === 'all') {
+                        card.style.display = 'flex';
+                    } else if (filter === 'achieved' && card.classList.contains('achieved')) {
+                        card.style.display = 'flex';
+                    } else if (filter === 'unachieved' && !card.classList.contains('achieved')) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

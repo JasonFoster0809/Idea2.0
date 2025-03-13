@@ -1,0 +1,865 @@
+/* Rank Card Styles */
+.rank-card {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Rank-specific borders */
+.rank-card[data-rank="newbie"] {
+    border: 3px solid #8B4513; /* Wood color */
+}
+
+.rank-card[data-rank="bronze"] {
+    border: 3px solid #CD7F32; /* Bronze color */
+}
+
+.rank-card[data-rank="iron"] {
+    border: 3px solid #71797E; /* Iron color */
+}
+
+.rank-card[data-rank="tin"] {
+    border: 3px solid #AAAAAA; /* Tin color */
+}
+
+.rank-card[data-rank="silver"] {
+    border: 3px solid #C0C0C0; /* Silver color */
+}
+
+.rank-card[data-rank="gold"] {
+    border: 3px solid #FFD700; /* Gold color */
+}
+
+.rank-card[data-rank="platinum"] {
+    border: 3px solid #E5E4E2; /* Platinum color */
+}
+
+.rank-card[data-rank="titanium"] {
+    border: 3px solid #878681; /* Titanium color */
+}
+
+.rank-card[data-rank="emerald"] {
+    border: 3px solid #50C878; /* Emerald color */
+}
+
+.rank-card[data-rank="ruby"] {
+    border: 3px solid #E0115F; /* Ruby color */
+}
+
+.rank-card[data-rank="diamond"] {
+    border: 3px solid #B9F2FF; /* Diamond color */
+    background: linear-gradient(135deg, #ffffff 0%, #f9f9f9 25%, #e9e9e9 50%, #f9f9f9 75%, #ffffff 100%);
+}
+
+
+.open-animation {
+    animation: rotate-cookie 1s forwards;
+}
+
+@keyframes rotate-cookie {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2) rotate(180deg);
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+.cookie-left, .cookie-right {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    opacity: 0;
+    animation: split-cookie 1s forwards;
+}
+
+.cookie-left {
+    left: 0;
+    transform-origin: right center;
+}
+
+.cookie-right {
+    right: 0;
+    transform-origin: left center;
+}
+
+@keyframes split-cookie {
+    0% {
+        opacity: 0;
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50px);
+    }
+}
+
+.cookie-right {
+    animation: split-cookie-right 1s forwards;
+}
+
+@keyframes split-cookie-right {
+    0% {
+        opacity: 0;
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(50px);
+    }
+}
+
+.fortune-paper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fffcef;
+    padding: 10px;
+    border-radius: 5px;
+    max-width: 80%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    opacity: 0;
+    z-index: 10;
+}
+
+.fortune-paper.visible {
+    opacity: 1;
+    animation: paper-appear 0.5s forwards;
+}
+
+@keyframes paper-appear {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+.rank-name {
+    font-weight: bold;
+}
+
+.rank-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.rank-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.xp-progress {
+    margin-top: 15px;
+}
+
+.progress {
+    height: 10px;
+    border-radius: 5px;
+    background-color: #e9ecef;
+    margin-top: 5px;
+}
+
+.progress-bar {
+    background: linear-gradient(to right, #4e73df, #224abe);
+    border-radius: 5px;
+}
+
+/* Achievement Card Styles */
+.achievement-card {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    filter: grayscale(100%);
+    opacity: 0.7;
+}
+
+.achievement-card.achieved {
+    filter: grayscale(0%);
+    opacity: 1;
+    background: white;
+}
+
+.achievement-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.achievement-icon {
+    width: 60px;
+    height: 60px;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.achievement-info {
+    flex-grow: 1;
+}
+
+.achievement-info h5 {
+    margin-bottom: 5px;
+    font-size: 1rem;
+}
+
+.achievement-info p {
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+    color: #6c757d;
+}
+
+.achievement-rewards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+/* Daily Quest Styles */
+.daily-rewards {
+    margin-bottom: 20px;
+}
+
+.daily-progress {
+    padding: 0 10px;
+}
+
+.daily-progress .progress {
+    border-radius: 10px;
+    background-color: #e9ecef;
+    overflow: hidden;
+}
+
+.daily-progress .progress-bar {
+    background: linear-gradient(to right, #28a745, #20c997);
+    transition: width 0.5s ease-in-out;
+}
+
+.daily-progress .progress-text {
+    margin-bottom: 5px;
+    color: #6c757d;
+}
+
+.reward-milestone {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    position: relative;
+    border: 2px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.milestone-icon {
+    font-weight: bold;
+    color: #6c757d;
+}
+
+.milestone-reached {
+    background: #ffc107;
+    border-color: #e0a800;
+}
+
+.milestone-reached .milestone-icon {
+    color: #5a4500;
+}
+
+/* Gacha Styles */
+.gacha-cookies-container {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.gacha-cookie {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.gacha-cookie:hover {
+    transform: scale(1.1);
+}
+
+.selected-cookie-container {
+    text-align: center;
+    position: relative;
+    min-height: 220px;
+}
+
+.fortune-cookie-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.selected-cookie {
+    max-width: 200px;
+    margin: 0 auto;
+    transition: all 0.5s ease;
+}
+
+.fortune-paper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff5e6;
+    width: 180px;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    font-size: 14px;
+    color: #333;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.5s ease 0.5s;
+}
+
+.fortune-paper.visible {
+    z-index: 10;
+    opacity: 1;
+}
+
+.open-animation {
+    animation: openCookie 1.5s forwards;
+}
+
+.cookie-left {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    animation: slideLeft 1s ease 0.5s forwards;
+    opacity: 0;
+}
+
+.cookie-right {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    animation: slideRight 1s ease 0.5s forwards;
+    opacity: 0;
+}
+
+@keyframes openCookie {
+    0% { transform: scale(1) rotate(0deg); }
+    40% { transform: scale(1.2) rotate(10deg); }
+    60% { transform: scale(1.1) rotate(-10deg); }
+    80% { transform: scale(1) rotate(0deg); }
+    100% { transform: scale(0); opacity: 0; }
+}
+
+@keyframes slideLeft {
+    0% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(-100px); opacity: 0; }
+}
+
+@keyframes slideRight {
+    0% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(100px); opacity: 0; }
+}
+
+/* Customization Styles */
+/* Customization styles */
+
+/* Gacha Styles */
+.gacha-cookies-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+.gacha-cookie {
+    cursor: pointer;
+    transition: transform 0.2s;
+    padding: 10px;
+}
+
+.gacha-cookie:hover {
+    transform: scale(1.1);
+}
+
+.selected-cookie-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    position: relative;
+    height: 200px;
+}
+
+.fortune-cookie-wrapper {
+    position: relative;
+    width: 200px;
+    height: 150px;
+}
+
+.selected-cookie {
+    max-width: 100%;
+    max-height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.5s;
+}
+
+.cookie-left {
+    position: absolute;
+    top: 20%;
+    left: -30px;
+    opacity: 0;
+    animation: slide-left 1s forwards;
+}
+
+.cookie-right {
+    position: absolute;
+    top: 20%;
+    right: -30px;
+    opacity: 0;
+    animation: slide-right 1s forwards;
+}
+
+.fortune-paper {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #FFFACD;
+    border: 1px solid #DEB887;
+    padding: 10px;
+    width: 120px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 12px;
+    opacity: 0;
+    z-index: 10;
+    transition: all 0.5s ease;
+}
+
+.fortune-paper.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+.open-animation {
+    animation: open-cookie 1s forwards;
+}
+
+@keyframes open-cookie {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes slide-left {
+    0% {
+        opacity: 0;
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-30px);
+    }
+}
+
+@keyframes slide-right {
+    0% {
+        opacity: 0;
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(30px);
+    }
+}
+
+/* Customization option styles */
+.customization-option {
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.customization-option:hover {
+    border-color: #6c757d;
+}
+
+.customization-option.selected {
+    border-color: #0d6efd;
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+/* Rank Up Notification */
+.rank-up-notification {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 10px;
+    padding: 15px;
+    margin-top: 10px;
+    text-align: center;
+    animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid #dee2e6;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes pop-in {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.rank-up-notification h5 {
+    color: #4e73df;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.rank-icon-container {
+    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Make sure the rank-card is properly styled on all pages */
+.rank-card {
+    transition: all 0.3s ease;
+}
+
+.rank-card:hover {
+    transform: translateY(-5px);
+}
+
+
+/* Custom styles for specific components */
+
+/* Homepage hero section */
+.hero-section {
+    background: linear-gradient(135deg, rgba(67, 97, 238, 0.8), rgba(63, 55, 201, 0.9)), 
+                url('/static/images/quiz-bg.jpg') center/cover no-repeat;
+    color: white;
+    padding: 5rem 0;
+    margin-bottom: 3rem;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+/* Stats cards */
+.stats-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.stats-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.stats-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.stats-label {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+/* Shop items */
+.shop-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 15px;
+    background: white;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.shop-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.shop-item-img {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 15px 15px 0 0;
+}
+
+.shop-item-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: var(--primary-color);
+    color: white;
+    z-index: 1;
+}
+
+.shop-item-content {
+    padding: 1.5rem;
+}
+
+.shop-item-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.shop-item-price {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+}
+
+.shop-item-price i {
+    color: gold;
+    margin-right: 0.5rem;
+}
+
+/* Quiz styling */
+.quiz-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.question-number {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.question-text {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+}
+
+.quiz-timer {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background-color: rgba(67, 97, 238, 0.1);
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: inline-block;
+}
+
+.quiz-progress {
+    height: 0.5rem;
+    border-radius: 10px;
+    background-color: #e9ecef;
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.quiz-progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+}
+
+/* Achievements styling */
+.achievement-container {
+    margin-bottom: 3rem;
+}
+
+.achievement-category {
+    margin-bottom: 2rem;
+}
+
+.achievement-category-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--text-primary);
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--primary-color);
+}
+
+/* Profile card */
+.profile-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+}
+
+.profile-header {
+    padding: 2rem;
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    color: white;
+    position: relative;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid white;
+    margin-bottom: 1rem;
+    object-fit: cover;
+}
+
+.profile-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.profile-rank {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.profile-stats {
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.profile-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.profile-stat-label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.profile-body {
+    padding: 1.5rem;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% {transform: scale(1);}
+    50% {transform: scale(1.05);}
+    100% {transform: scale(1);}
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes float {
+    0% {transform: translateY(0px);}
+    50% {transform: translateY(-10px);}
+    100% {transform: translateY(0px);}
+}
+
+.float {
+    animation: float 4s ease-in-out infinite;
+}

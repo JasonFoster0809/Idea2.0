@@ -1,0 +1,246 @@
+/* Admin CSS Styles */
+.admin-header {
+  margin-bottom: 2rem;
+}
+
+.admin-card {
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.admin-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+}
+
+.admin-actions a {
+  margin-right: 0.5rem;
+}
+
+.admin-table {
+  font-size: 0.95rem;
+}
+
+.admin-table th {
+  font-weight: 600;
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.admin-stats-card {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.admin-stats-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #4361ee;
+}
+
+.admin-stats-label {
+  font-size: 1rem;
+  color: #6c757d;
+}
+
+/* Animation for admin dashboard */
+.admin-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive admin layout */
+@media (max-width: 768px) {
+  .admin-stats-number {
+    font-size: 2rem;
+  }
+
+  .admin-table {
+    font-size: 0.85rem;
+  }
+}
+/* Admin Dashboard Styles */
+.admin-sidebar {
+    background-color: #4e73df;
+    background-image: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+    background-size: cover;
+    min-height: 100vh;
+}
+
+.admin-sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+    padding: 1rem;
+    border-radius: 0.35rem;
+    margin-bottom: 0.25rem;
+}
+
+.admin-sidebar .nav-link:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.admin-sidebar .nav-link.active {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.admin-sidebar .nav-link i {
+    margin-right: 0.5rem;
+}
+
+.admin-content {
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+    transition: all 0.3s ease;
+    min-height: 90vh;
+    transition: none !important;
+    animation: none !important;
+}
+
+.admin-card {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.15rem 1.75rem rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.admin-card-header {
+    background-color: #f8f9fc;
+    border-bottom: 1px solid #e3e6f0;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-card-header h6 {
+    font-weight: 700;
+    margin: 0;
+    color: #4e73df;
+}
+
+.admin-card-body {
+    padding: 1.5rem;
+}
+
+.stats-card {
+    border-left: 0.25rem solid;
+    border-radius: 0.35rem;
+    padding: 1.5rem;
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    margin-bottom: 1.5rem;
+}
+
+.stats-card-users {
+    border-left-color: #4e73df;
+}
+
+.stats-card-questions {
+    border-left-color: #1cc88a;
+}
+
+.stats-card-contributions {
+    border-left-color: #f6c23e;
+}
+
+.stats-card-performance {
+    border-left-color: #36b9cc;
+}
+
+.stats-card-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #858796;
+    margin-bottom: 0.35rem;
+}
+
+.stats-card-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #5a5c69;
+    margin-bottom: 0;
+}
+
+.admin-table {
+    width: 100%;
+}
+
+.admin-table th {
+    font-weight: 700;
+    background-color: #f8f9fc;
+}
+
+.action-buttons .btn {
+    margin-right: 0.25rem;
+}
+
+.modal-header {
+    background-color: #4e73df;
+    color: white;
+}
+
+.modal-footer {
+    border-top: 1px solid #e3e6f0;
+    background-color: #f8f9fc;
+}
+
+.badge-admin {
+    background-color: #4e73df;
+    color: white;
+}
+
+.badge-user {
+    background-color: #1cc88a;
+    color: white;
+}
+
+.badge-pending {
+    background-color: #f6c23e;
+    color: white;
+}
+
+.badge-approved {
+    background-color: #1cc88a;
+    color: white;
+}
+
+.badge-rejected {
+    background-color: #e74a3b;
+    color: white;
+}
+
+/* User management */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Charts */
+.chart-container {
+    height: 20rem;
+    position: relative;
+}
+
+/* Fix for edit user and view questions flickering */
+.card, .table-responsive, .modal {
+    transition: none !important;
+    animation: none !important;
+}
+
+/* Prevent any animations that might cause flickering */
+* {
+    animation-duration: 0s !important;
+    transition-duration: 0s !important;
+}

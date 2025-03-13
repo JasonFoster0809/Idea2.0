@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        {% if current_user.is_authenticated %}
+        <div class="card shadow rank-card" data-aos="fade-right" data-rank="{{ current_user.rank.lower() }}">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="card-title">Profile</h3>
+                    <div class="rank-badge">
+                        <img src="{{ url_for('static', filename='images/ranks/' + current_user.rank.lower() + '.png') }}" 
+                             alt="{{ current_user.rank }}" class="rank-icon">
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <p>Username: <strong>{{ current_user.username }}</strong></p>
+                    <p>Coins: <strong>{{ current_user.coins }}</strong> <i class="fas fa-coins text-warning"></i></p>
+                    <p>Rank: <strong class="rank-name">{{ current_user.rank }}</strong></p>
+
+                    {% set next_rank = None %}
+                    {% set next_threshold = 0 %}
+                    {% set current_threshold = 0 %}
+
+                    {% for rank, threshold in RANK_THRESHOLDS.items() | sort(attribute='1') %}
+                        {% if current_user.rank == rank %}
+                            {% set current_threshold = threshold %}
+                            {% for next_r, next_t in RANK_THRESHOLDS.items() | sort(attribute='1') %}
+                                {% if next_t > threshold and not next_rank %}
+                                    {% set next_rank = next_r %}
+                                    {% set next_threshold = next_t %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <p>Experience: <strong>{{ current_user.experience }} XP</strong></p>
+                    <div class="rank-progress mt-3">
+                        {% if next_rank %}
+                        <p class="mb-1">Tiến trình ({{ current_user.experience }}/{{ next_threshold }})</p>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                                 role="progressbar" 
+                                 style="width: {{ ((current_user.experience - current_threshold) / (next_threshold - current_threshold) * 100)|round }}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">Rank tiếp theo: {{ next_rank }}</small>
+                        {% else %}
+                        <p class="mb-1">Kinh nghiệm: {{ current_user.experience }} XP</p>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                                 role="progressbar" 
+                                 style="width: 100%">
+                            </div>
+                        </div>
+                        {% if current_user.rank == 'Diamond' %}
+                        <small class="text-muted">Đã đạt rank cao nhất!</small>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="card shadow" data-aos="fade-right">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="card-title">Welcome to QuizApp</h3>
+                </div>
+                <div class="login-info text-center">
+                    <p>Please <a href="{{ url_for('login') }}">login</a> or <a href="{{ url_for('register') }}">register</a> to access your profile and start learning!</p>
+                    <div class="mt-3">
+                        <a href="{{ url_for('login') }}" class="btn btn-primary me-2">Login</a>
+                        <a href="{{ url_for('register') }}" class="btn btn-success">Register</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow" data-aos="fade-left">
+            <div class="card-body">
+                <h3 class="card-title">Leaderboard</h3>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>User</th>
+                                <th>Coins</th>
+                                <th>Experience</th>
+                                <th>Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in top_users %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>🪙 {{ user.coins }}</td>
+                                <td>{{ user.experience }} XP</td>
+                                <td>{{ user.rank }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
