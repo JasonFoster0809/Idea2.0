@@ -308,8 +308,8 @@ def admin_contributions():
         abort(403)
 
     from models import Contribution
-    # Get all contributions, both pending and approved
-    contributions = Contribution.query.all()
+    # Chỉ lấy những đóng góp chưa được duyệt
+    contributions = Contribution.query.filter_by(approved=False).all()
     return render_template('admin/contributions.html', contributions=contributions)
 
 @app.route('/admin_fortune_cookies')
@@ -372,8 +372,13 @@ def approve_contribution(id):
     if not current_user.is_admin:
         abort(403)
 
-    from models import Contribution, Question
+    from models import Contribution, Question, User
     contribution = Contribution.query.get_or_404(id)
+    
+    # Kiểm tra xem đóng góp đã được duyệt chưa
+    if contribution.approved:
+        flash(f'Câu hỏi #{id} đã được duyệt trước đó!')
+        return redirect(url_for('admin_contributions'))
 
     # Create new question from contribution
     new_question = Question(
@@ -394,10 +399,16 @@ def approve_contribution(id):
     # Mark contribution as approved
     contribution.approved = True
 
+    # Thưởng cho người đóng góp
+    contributor = User.query.get(contribution.user_id)
+    if contributor:
+        contributor.add_coins(10)  # Thưởng 10 xu cho mỗi đóng góp được duyệt
+        contributor.add_experience(20)  # Thưởng 20 XP
+
     db.session.add(new_question)
     db.session.commit()
 
-    flash(f'Đã phê duyệt câu hỏi #{id}!')
+    flash(f'Đã phê duyệt câu hỏi #{id} và thưởng cho người đóng góp!')
     return redirect(url_for('admin_contributions'))
 
 @app.route('/reject_contribution/<int:id>', methods=['POST'])
