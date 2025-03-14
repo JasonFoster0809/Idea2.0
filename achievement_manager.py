@@ -64,7 +64,11 @@ def check_achievement_conditions(user, achievement):
     
     # Thành tựu "Người mới bắt đầu" - luôn trả về True để đảm bảo được cấp cho tất cả người dùng
     if achievement_name == "Người mới bắt đầu":
-        return True  # Always grant this achievement to all users
+        existing = UserAchievement.query.filter_by(
+            user_id=user.id,
+            achievement_id=achievement.id
+        ).first()
+        return not existing  # Chỉ cấp nếu chưa có
     
     # Thành tựu "Chào mừng trở lại"
     if achievement_name == "Chào mừng trở lại":
