@@ -80,12 +80,11 @@
 }
 
 .achievement-card.achieved {
-    background: linear-gradient(135deg, #ffffff, #e8f5e9);
-    border-left: 4px solid #4caf50;
-    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
-    opacity: 1;
-    filter: grayscale(0);
-    background: linear-gradient(135deg, #f0f7ff, #e4f1ff);
+    opacity: 1 !important;
+    filter: none !important;
+    background: linear-gradient(135deg, #f0f7ff, #e4f1ff) !important;
+    border-left: 4px solid #4caf50 !important;
+    box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4) !important;
     transform: translateY(-3px);
     animation: achievementGlow 2s infinite alternate;
 }
@@ -95,7 +94,7 @@
         box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
     }
     to {
-        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.6);
     }
 }
 

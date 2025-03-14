@@ -107,7 +107,7 @@ def register_post():
             user_id=new_user.id,
             achievement_id=achievement.id
         ).first()
-        
+
         if not existing:
             user_achievement = UserAchievement(
                 user_id=new_user.id, 
@@ -115,14 +115,14 @@ def register_post():
                 acquired_date=datetime.utcnow(),
                 notified=True
             )
-            
+
             # Thêm phần thưởng
             if achievement.xp_reward:
                 new_user.add_experience(achievement.xp_reward)
-            
+
             if achievement.coin_reward:
                 new_user.add_coins(achievement.coin_reward)
-                
+
             db.session.add(user_achievement)
             db.session.commit()
 
@@ -149,7 +149,7 @@ def login_post():
             user_id=user.id,
             achievement_id=achievement.id
         ).first()
-        
+
         if not existing:
             user_achievement = UserAchievement(
                 user_id=user.id, 
@@ -157,14 +157,14 @@ def login_post():
                 acquired_date=datetime.utcnow(),
                 notified=True
             )
-            
+
             # Thêm phần thưởng
             if achievement.xp_reward:
                 user.add_experience(achievement.xp_reward)
-            
+
             if achievement.coin_reward:
                 user.add_coins(achievement.coin_reward)
-                
+
             db.session.add(user_achievement)
             db.session.commit()
 
@@ -206,7 +206,7 @@ def check_user_achievements():
         # Initialize achievements if they don't exist
         from achievement_manager import initialize_achievements
         initialize_achievements()
-        
+
     # Ensure user has "Người mới bắt đầu" achievement
     starter_achievement = Achievement.query.filter_by(name="Người mới bắt đầu").first()
     if starter_achievement:
@@ -214,7 +214,7 @@ def check_user_achievements():
             user_id=current_user.id,
             achievement_id=starter_achievement.id
         ).first()
-        
+
         if not existing:
             # Cấp thành tựu "Người mới bắt đầu"
             user_achievement = UserAchievement(
@@ -223,14 +223,14 @@ def check_user_achievements():
                 acquired_date=datetime.utcnow(),
                 notified=True  # Mark as notified
             )
-            
+
             # Thêm phần thưởng
             if starter_achievement.xp_reward:
                 current_user.add_experience(starter_achievement.xp_reward)
-            
+
             if starter_achievement.coin_reward:
                 current_user.add_coins(starter_achievement.coin_reward)
-            
+
             db.session.add(user_achievement)
             db.session.commit()
 
@@ -1062,6 +1062,27 @@ def check_new_achievements():
         return jsonify({'new_achievements': achievement_details})
     else:
         return jsonify({'new_achievements': []})
+
+def award_achievement(user, achievement):
+    """Awards an achievement to a user, handling existing achievements and rewards."""
+    from models import UserAchievement
+    existing = UserAchievement.query.filter_by(
+        user_id=user.id,
+        achievement_id=achievement.id
+    ).first()
+    if not existing:
+        user_achievement = UserAchievement(
+            user_id=user.id,
+            achievement_id=achievement.id,
+            acquired_date=datetime.utcnow(),
+            notified=True
+        )
+        if achievement.xp_reward:
+            user.add_experience(achievement.xp_reward)
+        if achievement.coin_reward:
+            user.add_coins(achievement.coin_reward)
+        db.session.add(user_achievement)
+        db.session.commit()
 
 if __name__ == '__main__':
     app.run(debug=True)
