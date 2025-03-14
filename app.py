@@ -482,6 +482,26 @@ def toggle_admin(user_id):
     flash(f'Đã {action} quyền admin cho {user.username}!')
     return redirect(url_for('admin_users'))
 
+@app.route('/delete_user/<int:user_id>', methods=['POST'])
+@login_required
+def delete_user(user_id):
+    if not current_user.is_admin:
+        abort(403)
+
+    from models import User
+    user = User.query.get_or_404(user_id)
+
+    if user.id == current_user.id:
+        flash('Không thể xóa tài khoản của chính mình!')
+        return redirect(url_for('admin_users'))
+
+    # Delete user
+    db.session.delete(user)
+    db.session.commit()
+
+    flash(f'Đã xóa tài khoản {user.username}!')
+    return redirect(url_for('admin_users'))
+
 @app.route('/approve_contribution/<int:id>', methods=['POST'])
 @login_required
 def approve_contribution(id):

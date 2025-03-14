@@ -49,6 +49,12 @@
                                         </button>
                                         {% endif %}
                                     </form>
+
+                                    <form id="deleteUser-{{ user.id }}" method="POST" action="{{ url_for('delete_user', user_id=user.id) }}" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tài khoản {{ user.username }}?');">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i data-feather="trash-2"></i> Xóa
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             {% endfor %}
