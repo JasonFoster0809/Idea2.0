@@ -85,6 +85,16 @@
     border-left: 4px solid #4caf50;
     box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
     transform: translateY(-3px);
+    animation: achievementGlow 2s infinite alternate;
+}
+
+@keyframes achievementGlow {
+    from {
+        box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+    }
+    to {
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+    }
 }
 
 .achievement-card .achievement-icon {

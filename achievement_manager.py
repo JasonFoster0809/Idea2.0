@@ -182,7 +182,7 @@ def award_achievement(user, achievement):
         user_id=user.id,
         achievement_id=achievement.id,
         acquired_date=datetime.utcnow(),
-        notified=False
+        notified=True  # Set to True to ensure notification
     )
     
     # Thêm phần thưởng
