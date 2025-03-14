@@ -1,3 +1,57 @@
+
+/* Achievement notification styles */
+.toast.toast-achievement {
+    background: linear-gradient(135deg, #2b4b6f, #1a365d);
+    color: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.achievement-notification {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.achievement-notification .achievement-icon {
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.achievement-notification .achievement-content {
+    flex: 1;
+}
+
+.achievement-notification h4 {
+    margin: 0 0 5px 0;
+    font-size: 1rem;
+}
+
+.achievement-notification p {
+    margin: 0 0 8px 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.achievement-notification .achievement-rewards {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.achievement-notification .badge {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border-radius: 12px;
+}
+
 /* Achievements styling */
 .achievement-container {
     margin-bottom: 3rem;
